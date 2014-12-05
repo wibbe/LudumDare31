@@ -3,7 +3,7 @@ extends KinematicBody2D
 
 const GRAVITY = 3000.0
 const WALK_SPEED = 400.0
-const JUMP = 1000.0
+const JUMP = 1300.0
 
 var velocity = Vector2()
 var grounded = false
