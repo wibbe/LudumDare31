@@ -32,9 +32,9 @@ func _input(event):
 func _fixed_process(delta):
 	velocity.y += GRAVITY * delta
 	
-	if (Input.is_action_pressed("ui_left")):
+	if (Input.is_action_pressed("player_left")):
 		velocity.x = -WALK_SPEED
-	elif (Input.is_action_pressed("ui_right")):
+	elif (Input.is_action_pressed("player_right")):
 		velocity.x = WALK_SPEED
 	else:
 		velocity.x = 0.0
