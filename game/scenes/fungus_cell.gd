@@ -27,7 +27,7 @@ func _ready():
 	current_energy = INITIAL_ENERGY
 	sprite = get_node("Body")
 	sprite.set_rot(randf() * PI)
-	#sprite.set_texture(textures[randi() % 4])
+	sprite.set_texture(textures[randi() % 3])
 	
 	get_node("Selection").hide()
 	hide()

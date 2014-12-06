@@ -13,7 +13,10 @@ var cells = null
 var spread = null
 
 var time_to_next_tick = 0.0
+
 var selection = null
+var pressed_pos = null
+
 
 func _ready():
 	set_process_input(true)
@@ -35,43 +38,51 @@ func _process(delta):
 
 	
 func _input(event):
-	if (event.type == InputEvent.MOUSE_BUTTON && event.pressed):
-		var pos = get_tile_pos(event.pos)
-		var cell = cells.get_cell(pos)
+	if (event.type == InputEvent.MOUSE_BUTTON):
+		if (event.pressed):
+			var pos = get_tile_pos(event.pos)
+			var cell = cells.get_cell(pos)
 		
-		if (cell and cell.is_player()):
+			if (cell and cell.is_player()):
+				pressed_pos = pos
+			else:
+				pressed_pos = null
+		elif (pressed_pos != null):
+			var pos = get_tile_pos(event.pos)
+			var cell = cells.get_cell(pos)
+		
+			if (not cell or not cell.is_player()):
+				if ((pos.x == pressed_pos.x and abs(pos.y - pressed_pos.y) == 1) or (pos.y == pressed_pos.y and abs(pos.x - pressed_pos.x) == 1)):
+					var selected = cells.get_cell(pressed_pos)
+					selected.attack(pos)
+					spread.hide()
+		
+			pressed_pos = null
+	elif (event.type == InputEvent.MOUSE_MOTION):
+		if (pressed_pos != null):
+			spread.hide()
+
+			var pos = get_tile_pos(event.pos)
+			var cell = cells.get_cell(pos)
+		
+			if (not cell or not cell.is_player()):
+				if ((pos.x == pressed_pos.x and abs(pos.y - pressed_pos.y) == 1) or (pos.y == pressed_pos.y and abs(pos.x - pressed_pos.x) == 1)):
+					spread.show();
+					spread.set_pos(get_world_pos(pressed_pos))
+					spread.set_rot(spread.get_pos().angle_to_point(get_world_pos(pos)))
+		else:
+			spread.hide()
+			
 			if (selection):
 				selection.deselect()
-				
-				if (selection.pos == pos):
-					selection = null
-				else:
-					selection = cell
-			else:
-				selection = cell
-				
-			if (selection):
-				selection.select()
-		else:
-			if (selection):
-				if ((pos.x == selection.pos.x and abs(pos.y - selection.pos.y) == 1) or (pos.y == selection.pos.y and abs(pos.x - selection.pos.x) == 1)):
-					selection.attack(pos)
-					spread.hide()
-				else:
-					selection.deselect()
-					selection = null
-	elif (event.type == InputEvent.MOUSE_MOTION):
-		spread.hide()
-		
-		if (selection):
+				selection = null
+			
 			var pos = get_tile_pos(event.pos)
 			var cell = cells.get_cell(pos)
 			
-			if (not cell or not cell.is_player()):
-				if (pos.x == selection.pos.x or pos.y == selection.pos.y):
-					spread.show();
-					spread.set_pos(get_world_pos(selection.pos))
-					spread.set_rot(spread.get_pos().angle_to_point(get_world_pos(pos)))
+			if (cell and cell.is_player()):
+				selection = cell
+				selection.select()
 
 
 func get_tile_pos(pos):
