@@ -40,7 +40,7 @@ func get_cell(pos):
 		return null
 
 
-func add_cell(pos, type):
+func add_cell(pos, type, from):
 	if (not is_empty(pos)):
 		return false
 	
@@ -50,9 +50,7 @@ func add_cell(pos, type):
 	cell_board[pos] = cell
 	
 	cell.set_pos(get_world_pos(pos))
-	cell.initialize(pos, self)
-	
-	print("Fugus Cell @ ", cell.get_pos())
+	cell.initialize(from, pos, self)
 		
 	return true
 	
@@ -67,8 +65,8 @@ func add_energy(pos, energy):
 func get_world_pos(pos):
 	var world_pos = tile_map.map_to_world(Vector2(pos.x, pos.y))
 	#world_pos += tile_map.get_pos()
-	#orld_pos.x += 32
-	#world_pos.y += 32
+	world_pos.x += 32
+	world_pos.y += 32
 	world_pos.x *= tile_map.get_scale().x
 	world_pos.y *= tile_map.get_scale().y
 	

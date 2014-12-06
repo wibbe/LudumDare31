@@ -4,13 +4,12 @@ extends Node2D
 const START_TILE = 2
 const START_ENERGY = 1000
 const CELL_SCALE = 0.5
-const GAME_SPEED = 0.2
+const GAME_SPEED = 0.05
 
 var FungusCell = preload("res://scenes/fungus_cell.scn")
 
 var tile_map = null
 var cells = null
-var spread = null
 
 var time_to_next_tick = 0.0
 var selection = null
@@ -21,8 +20,6 @@ func _ready():
 	
 	cells = get_node("Cells")
 	tile_map = get_node("ValidTiles")
-	spread = get_node("Cells/Spread")
-	
 	tile_map.hide()
 	init_board()
 
@@ -59,18 +56,7 @@ func _input(event):
 				else:
 					selection.deselect()
 					selection = null
-	elif (event.type == InputEvent.MOUSE_MOTION):
-		spread.hide()
-		
-		if (selection):
-			var pos = get_tile_pos(event.pos)
-			var cell = cells.get_cell(pos)
 			
-			if (not cell or not cell.is_player()):
-				if (pos.x >= (selection.pos.x - 1) and pos.x <= (selection.pos.x + 1) and pos.y >= (selection.pos.y - 1) and pos.y <= (selection.pos.y + 1)):
-					spread.show();
-					spread.set_pos(get_world_pos(selection.pos))
-					spread.set_rot(spread.get_pos().angle_to_point(get_world_pos(pos)))
 			
 		
 
@@ -86,15 +72,7 @@ func init_board():
 			var tile = tile_map.get_cell(x, y)
 			
 			if (tile == START_TILE):
-				cells.add_cell(Vector2(x, y), FungusCell, null)
+				cells.add_cell(Vector2(x, y), FungusCell)
 				cells.add_energy(Vector2(x, y), START_ENERGY)
 		
-func get_world_pos(pos):
-	var world_pos = tile_map.map_to_world(Vector2(pos.x, pos.y))
-	#world_pos += tile_map.get_pos()
-	world_pos.x += 32
-	world_pos.y += 32
-	world_pos.x *= tile_map.get_scale().x
-	world_pos.y *= tile_map.get_scale().y
-	
-	return world_pos
+

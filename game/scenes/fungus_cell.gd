@@ -16,20 +16,31 @@ var colonize = {}
 func _ready():
 	set_process(true)
 	current_energy = INITIAL_ENERGY
-	sprite = get_node("Background")
+	sprite = get_node("Body")
 	sprite.set_rot(randf() * PI)
 	
-	
 	get_node("Selection").hide()
+	hide()
 	
 func _process(delta):
-	#var scale = 0.1 + (current_energy / MAX_ENERGY) * 0.9
-	#sprite.set_scale(Vector2(scale, scale))
+	var scale = 0.3 + (current_energy / MAX_ENERGY) * 0.8
+	sprite.set_scale(Vector2(scale, scale))
 	pass
 
-func initialize(pos_, board_):
+func initialize(from_pos, pos_, board_):
 	pos = pos_
 	board = board_
+	
+	if (from_pos != null):
+		var animation = get_node("Animation")
+		var arm = get_node("Arm")
+		arm.set_rot(get_pos().angle_to_point(from_pos))
+		animation.play("Attack")
+		show()
+	else:
+		get_node("Body").set_opacity(1.0)
+		get_node("Arm").set_opacity(0.0)
+		show()
 
 func tick():
 	if (current_energy < MAX_ENERGY):
@@ -39,7 +50,7 @@ func tick():
 	for colony in colonize:
 		var target = board.get_cell(colony)
 		if (not target and current_energy > COLONIZE_ENERGY_COST):
-			board.add_cell(colony, FungusCell)
+			board.add_cell(colony, FungusCell, get_pos())
 			current_energy -= COLONIZE_ENERGY_COST
 		elif (target and target.is_player() and current_energy > 0):
 			if (target.transfere_energy()):
