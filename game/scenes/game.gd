@@ -54,8 +54,9 @@ func _input(event):
 				selection.select()
 		else:
 			if (selection):
-				if (pos.x >= (selection.pos.x - 1) and pos.x <= (selection.pos.x + 1) and pos.y >= (selection.pos.y - 1) and pos.y <= (selection.pos.y + 1)):
+				if ((pos.x == selection.pos.x and abs(pos.y - selection.pos.y) == 1) or (pos.y == selection.pos.y and abs(pos.x - selection.pos.x) == 1)):
 					selection.attack(pos)
+					spread.hide()
 				else:
 					selection.deselect()
 					selection = null
@@ -67,14 +68,12 @@ func _input(event):
 			var cell = cells.get_cell(pos)
 			
 			if (not cell or not cell.is_player()):
-				if (pos.x >= (selection.pos.x - 1) and pos.x <= (selection.pos.x + 1) and pos.y >= (selection.pos.y - 1) and pos.y <= (selection.pos.y + 1)):
+				if (pos.x == selection.pos.x or pos.y == selection.pos.y):
 					spread.show();
 					spread.set_pos(get_world_pos(selection.pos))
 					spread.set_rot(spread.get_pos().angle_to_point(get_world_pos(pos)))
-			
-		
 
-		
+
 func get_tile_pos(pos):
 	pos -= tile_map.get_pos()
 	return tile_map.world_to_map(Vector2(pos.x / tile_map.get_scale().x, pos.y / tile_map.get_scale().y))
@@ -88,10 +87,10 @@ func init_board():
 			if (tile == START_TILE):
 				cells.add_cell(Vector2(x, y), FungusCell, null)
 				cells.add_energy(Vector2(x, y), START_ENERGY)
-		
+
+
 func get_world_pos(pos):
 	var world_pos = tile_map.map_to_world(Vector2(pos.x, pos.y))
-	#world_pos += tile_map.get_pos()
 	world_pos.x += 32
 	world_pos.y += 32
 	world_pos.x *= tile_map.get_scale().x

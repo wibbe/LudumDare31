@@ -23,7 +23,7 @@ func _ready():
 	hide()
 	
 func _process(delta):
-	var scale = 0.3 + (current_energy / MAX_ENERGY) * 0.8
+	var scale = 0.6 + (current_energy / MAX_ENERGY) * 0.6
 	sprite.set_scale(Vector2(scale, scale))
 	pass
 
@@ -34,7 +34,7 @@ func initialize(from_pos, pos_, board_):
 	if (from_pos != null):
 		var animation = get_node("Animation")
 		var arm = get_node("Arm")
-		arm.set_rot(get_pos().angle_to_point(from_pos))
+		arm.set_rot(get_pos().angle_to_point(from_pos) + deg2rad(90))
 		animation.play("Attack")
 		show()
 	else:
@@ -43,9 +43,11 @@ func initialize(from_pos, pos_, board_):
 		show()
 
 func tick():
+	var drawn = 0
 	if (current_energy < MAX_ENERGY):
 		var energy = board.draw_energy(pos)
 		current_energy += energy
+		drawn += 1
 		
 	for colony in colonize:
 		var target = board.get_cell(colony)
@@ -53,13 +55,13 @@ func tick():
 			board.add_cell(colony, FungusCell, get_pos())
 			current_energy -= COLONIZE_ENERGY_COST
 		elif (target and target.is_player() and current_energy > 0):
-			if (target.transfere_energy()):
-				current_energy -= 1.0
-			
+			if (target.transfere_energy(0.3)):
+				current_energy -= 0.3
 
-func transfere_energy():
+
+func transfere_energy(energy):
 	if (current_energy < MAX_ENERGY):
-		current_energy += 1
+		current_energy += energy
 		return true
 	else:
 		return false
