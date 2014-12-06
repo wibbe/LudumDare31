@@ -1,9 +1,0 @@
-0.9		Head
-1.17		Body
-1.521		Legs
-
-tot (without overlaps): 3.591
-
-30% increase
-
-(note: times 64 to get it in pixels)
