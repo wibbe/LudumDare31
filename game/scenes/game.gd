@@ -2,46 +2,57 @@
 extends Node2D
 
 const START_TILE = 2
+const START_ENERGY = 200
 const SCALE = 0.3125
+const GAME_SPEED = 0.1
 
 var Cell = preload("res://scenes/fungus_cell.scn")
 
 var tile_map = null
 var cells = null
-var board = {}
+
+var time_to_next_tick = 0.0
+var selection = null
 
 func _ready():
 	set_process_input(true)
+	set_process(true)
 	
 	cells = get_node("Cells")
 	tile_map = get_node("ValidTiles")
 	tile_map.hide()
 	init_board()
 
+func _process(delta):
+	time_to_next_tick += delta
+	while (time_to_next_tick > GAME_SPEED):
+		time_to_next_tick -= GAME_SPEED
+		
+		cells.tick()
+
 	
 func _input(event):
 	if (event.type == InputEvent.MOUSE_BUTTON):
-		print("Click at: ", event.pos)
-		
 		var pos = get_tile_pos(event.pos)
+		var cell = cells.get_cell(pos)
 		
-		print("Map: ", pos)
+		if (cell):
+			if (selection):
+				selection.deselect()
+			selection = cell
+			selection.select()
+		else:
+			if (selection):
+				selection.deselect()
+			selection = null
+			
+			
 		
-		#var tile = get_cell(pos)
-		#print("Cell: ", tile)
+
 		
 func get_tile_pos(pos):
 	return tile_map.world_to_map(Vector2(pos.x / tile_map.get_scale().x, pos.y / tile_map.get_scale().y))
 
-func get_cell_pos(pos):
-	var world_pos = tile_map.map_to_world(Vector2(pos.x, pos.y))
-	world_pos.x *= tile_map.get_scale().x
-	world_pos.y *= tile_map.get_scale().y
-	
-	return world_pos
-
-func is_valid(pos):
-	return tile_map.get_cell(pos.x, pos.y)
 
 func init_board():
 	for y in range(0, tile_map.get_cell_size().y):
@@ -49,11 +60,7 @@ func init_board():
 			var tile = tile_map.get_cell(x, y)
 			
 			if (tile == START_TILE):
-				print("Creating start at: ", x, y)
-				var pos = get_cell_pos(Vector2(x, y))
-				var cell = Cell.instance()
-				cell.set_pos(pos)
-				
-				cells.add_child(cell)
+				cells.add_cell(Vector2(x, y), Cell)
+				cells.add_energy(Vector2(x, y), START_ENERGY)
 		
 
