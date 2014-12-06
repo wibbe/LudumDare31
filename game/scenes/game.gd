@@ -1,6 +1,9 @@
 
 extends Node2D
 
+export(int) var resolution_x = 10
+export(int) var resolution_y = 10
+
 const START_TILE = 2
 const START_ENERGY = 1000
 const CELL_SCALE = 0.5
@@ -65,8 +68,8 @@ func get_tile_pos(pos):
 
 
 func init_board():
-	for y in range(0, tile_map.get_cell_size().y):
-		for x in range(0, tile_map.get_cell_size().x):
+	for y in range(0, resolution_y):
+		for x in range(0, resolution_x):
 			var tile = tile_map.get_cell(x, y)
 			
 			if (tile == START_TILE):
