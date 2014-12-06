@@ -5,6 +5,7 @@ const CELL_SCALE = 0.5
 
 var cell_board = {}
 var energy_board = {}
+var background_board = {}
 var cells_to_clear = []
 var tile_map = null
 
@@ -32,12 +33,17 @@ func draw_energy(pos):
 	else:
 		return 0
 
+
 func is_empty(pos):
 	return is_valid(pos) and not cell_board.has(pos)
 
 
 func is_valid(pos):
 	return tile_map.get_cell(pos.x, pos.y) != -1
+
+
+func has_background(pos):
+	return background_board.has(pos)
 
 
 func get_cell(pos):
@@ -65,15 +71,19 @@ func add_cell(pos, type, from):
 func clear_cell(cell):
 	print("Killing ", cell.pos)
 	cells_to_clear.push_back(cell)
-	
+
 
 func add_energy(pos, energy):
 	if (not is_valid(pos)):
 		return
 		
 	energy_board[pos] = energy
-	
-	
+
+
+func add_background(pos, background):
+	background_board[pos] = true
+	background.set_pos(get_world_pos(pos))
+
 func get_world_pos(pos):
 	var world_pos = tile_map.map_to_world(Vector2(pos.x, pos.y))
 	#world_pos += tile_map.get_pos()
