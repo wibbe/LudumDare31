@@ -33,7 +33,7 @@ func _ready():
 	hide()
 	
 func _process(delta):
-	var target_scale = 0.6 + (current_energy / MAX_ENERGY) * 0.6
+	var target_scale = 0.4 + (current_energy / MAX_ENERGY) * 0.8
 	var scale = sprite.get_scale().x
 	
 	if (abs(target_scale - scale) < delta):
