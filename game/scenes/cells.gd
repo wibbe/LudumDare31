@@ -77,7 +77,6 @@ func add_cell(pos, type, from):
 
 
 func clear_cell(cell):
-	print("Killing ", cell.pos)
 	cells_to_clear.push_back(cell)
 
 

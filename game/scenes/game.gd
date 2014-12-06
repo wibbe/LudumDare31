@@ -4,7 +4,7 @@ extends Node2D
 const START_TILE = 2
 const START_ENERGY = 1000
 const CELL_SCALE = 0.5
-const GAME_SPEED = 0.15
+const GAME_SPEED = 0.01
 
 var FungusCell = preload("res://scenes/fungus_cell.scn")
 

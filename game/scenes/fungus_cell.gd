@@ -4,7 +4,7 @@ extends Node2D
 const MAX_ENERGY = 100.0
 const INITIAL_ENERGY = 5.0
 const COLONIZE_ENERGY_COST = 10.0
-const ENERGY_DRAIN = 0.1
+const ENERGY_DRAIN = 0.25
 const SEND_ENERGY_THRESHOLD = 10.0
 
 var FungusCell = preload("res://scenes/fungus_cell.scn")
