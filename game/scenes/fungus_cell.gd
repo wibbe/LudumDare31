@@ -23,7 +23,7 @@ func _ready():
 	get_node("Selection").hide()
 	
 func _process(delta):
-	var scale = 0.4 + (current_energy / MAX_ENERGY) * 0.8
+	var scale = 0.8 + (current_energy / MAX_ENERGY) * 0.6
 	sprite.set_scale(Vector2(scale, scale))
 
 func initialize(pos_, board_):

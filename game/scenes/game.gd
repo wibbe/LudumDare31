@@ -4,7 +4,7 @@ extends Node2D
 const START_TILE = 2
 const START_ENERGY = 1000
 const CELL_SCALE = 0.5
-const GAME_SPEED = 0.2
+const GAME_SPEED = 0.05
 
 var FungusCell = preload("res://scenes/fungus_cell.scn")
 
@@ -20,7 +20,7 @@ func _ready():
 	
 	cells = get_node("Cells")
 	tile_map = get_node("ValidTiles")
-	#tile_map.hide()
+	tile_map.hide()
 	init_board()
 
 func _process(delta):
