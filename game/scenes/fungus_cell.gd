@@ -2,13 +2,16 @@
 extends Node2D
 
 const MAX_ENERGY = 100.0
-const INITIAL_ENERGY = 10.0
+const INITIAL_ENERGY = 5.0
+const COLONIZE_ENERGY_COST = 10.0
+
+var FungusCell = preload("res://scenes/fungus_cell.scn")
 
 var pos = Vector2(0, 0)
 var current_energy = 0
 var board = null
 var sprite = null
-var connections = []
+var colonize = {}
 
 func _ready():
 	set_process(true)
@@ -29,7 +32,23 @@ func tick():
 	if (current_energy < MAX_ENERGY):
 		var energy = board.draw_energy(pos)
 		current_energy += energy
-		print(current_energy)
+		
+	for colony in colonize:
+		var target = board.get_cell(colony)
+		if (not target and current_energy > COLONIZE_ENERGY_COST):
+			board.add_cell(colony, FungusCell)
+			current_energy -= COLONIZE_ENERGY_COST
+		elif (target and target.is_player() and current_energy > 0):
+			current_energy -= 1.0
+			target.transfere_energy()
+			
+
+func transfere_energy():
+	current_energy += 1
+
+func attack(pos):
+	if (not colonize.has(pos)):
+		colonize[pos] = true
 
 func select():
 	get_node("Selection").show()

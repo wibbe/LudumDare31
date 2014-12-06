@@ -3,10 +3,10 @@ extends Node2D
 
 const START_TILE = 2
 const START_ENERGY = 200
-const SCALE = 0.3125
+const CELL_SCALE = 0.3125
 const GAME_SPEED = 0.1
 
-var Cell = preload("res://scenes/fungus_cell.scn")
+var FungusCell = preload("res://scenes/fungus_cell.scn")
 
 var tile_map = null
 var cells = null
@@ -36,15 +36,18 @@ func _input(event):
 		var pos = get_tile_pos(event.pos)
 		var cell = cells.get_cell(pos)
 		
-		if (cell):
+		if (cell and cell.is_player()):
 			if (selection):
 				selection.deselect()
 			selection = cell
 			selection.select()
 		else:
 			if (selection):
-				selection.deselect()
-			selection = null
+				if (pos.x >= (selection.pos.x - 1) and pos.x <= (selection.pos.x + 1) and pos.y >= (selection.pos.y - 1) and pos.y <= (selection.pos.y + 1)):
+					selection.attack(pos)
+				else:
+					selection.deselect()
+					selection = null
 			
 			
 		
@@ -60,7 +63,7 @@ func init_board():
 			var tile = tile_map.get_cell(x, y)
 			
 			if (tile == START_TILE):
-				cells.add_cell(Vector2(x, y), Cell)
+				cells.add_cell(Vector2(x, y), FungusCell)
 				cells.add_energy(Vector2(x, y), START_ENERGY)
 		
 
