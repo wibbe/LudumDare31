@@ -4,10 +4,12 @@ extends Node2D
 const MAX_ENERGY = 100.0
 const INITIAL_ENERGY = 5.0
 const COLONIZE_ENERGY_COST = 10.0
-const ENERGY_DRAIN = 0.1
+const ENERGY_DRAIN = 0.25
 const SEND_ENERGY_THRESHOLD = 10.0
 
 var FungusCell = preload("res://scenes/fungus_cell.scn")
+var FungusCellBackground = preload("res://scenes/fungus_cell_background.scn")
+
 var textures  = [
 	preload("res://images/Fungus1a.tex"),
 	preload("res://images/Fungus2a.tex"),
@@ -17,6 +19,7 @@ var pos = Vector2(0, 0)
 var current_energy = 0
 var board = null
 var sprite = null
+var background = null
 var colonize = {}
 
 func _ready():
@@ -39,6 +42,8 @@ func _process(delta):
 		scale += sign(target_scale - scale) * delta
 	
 	sprite.set_scale(Vector2(scale, scale))
+	if (background):
+		background.update_scale(scale)
 
 
 func initialize(from_pos, pos_, board_):
@@ -55,6 +60,11 @@ func initialize(from_pos, pos_, board_):
 		get_node("Body").set_opacity(1.0)
 		get_node("Arm").set_opacity(0.0)
 		show()
+
+		
+	if (not board.has_background(pos)):
+		background = FungusCellBackground.instance()
+		background.initialize(from_pos, pos, board)
 
 func tick():
 	if (current_energy < MAX_ENERGY):

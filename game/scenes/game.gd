@@ -4,7 +4,7 @@ extends Node2D
 const START_TILE = 2
 const START_ENERGY = 1000
 const CELL_SCALE = 0.5
-const GAME_SPEED = 0.2
+const GAME_SPEED = 0.01
 
 var FungusCell = preload("res://scenes/fungus_cell.scn")
 
@@ -87,6 +87,14 @@ func init_board():
 			if (tile == START_TILE):
 				cells.add_cell(Vector2(x, y), FungusCell, null)
 				cells.add_energy(Vector2(x, y), START_ENERGY)
+			else:
+				var rnd = randf()
+				if (rnd<0.05):  #5% chance that the cell has 1000-2000 energy
+					cells.add_energy(Vector2(x, y), round(1000+randf()*1000))
+				elif (rnd<0.35):  #30% chance that the cell has 500-1000 energy
+					cells.add_energy(Vector2(x, y), round(500+randf()*500))
+				else:  #65% chance that the cell has 0-500 energy
+					cells.add_energy(Vector2(x, y), round(randf()*500))
 
 
 func get_world_pos(pos):
