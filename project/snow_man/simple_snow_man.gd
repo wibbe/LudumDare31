@@ -7,7 +7,7 @@ const JUMP = 1300.0
 
 var velocity = Vector2()
 var grounded = false
-var connected
+var connected = true
 var legs = null
 var body = null
 var head = null
@@ -59,14 +59,23 @@ func _fixed_process(delta):
 	else:
 		grounded = false
 
-func disconnect_parts():
+func disconnect_parts():	
+	if (not connected):
+		return
+		
 	print("Disconncting parts")
+	
+	connected = false
+	
+	animations.stop_all()
+	animations.play("BreakApart")
+	yield(animations, "finished")
+	
+	print("Break")
+	
 	body.set_mode(RigidBody2D.MODE_RIGID)
 	head.set_mode(RigidBody2D.MODE_RIGID)
 	legs.set_mode(RigidBody2D.MODE_RIGID)
 	get_node("RemoteHead").set_remote_node(NodePath(""))
 	get_node("RemoteBody").set_remote_node(NodePath(""))
 	get_node("RemoteLegs").set_remote_node(NodePath(""))
-	
-	body.apply_impulse(Vector2(0, 0), Vector2(200, 100))
-	head.apply_impulse(Vector2(0, 0), Vector2(-200, 100))
