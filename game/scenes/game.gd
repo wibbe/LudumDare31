@@ -32,28 +32,27 @@ func _process(delta):
 
 	
 func _input(event):
-	if (event.type == InputEvent.MOUSE_BUTTON && event.pressed):
-		var pos = get_tile_pos(event.pos)
-		var cell = cells.get_cell(pos)
-		
-		if (cell and cell.is_player()):
-			if (selection):
-				selection.deselect()
-				
-				if (selection.pos == pos):
-					selection = null
+	if (event.type == InputEvent.MOUSE_BUTTON): # && event.pressed):
+	
+		if (event.pressed):
+			var pos = get_tile_pos(event.pos)
+			var cell = cells.get_cell(pos)
+			
+			if (cell and cell.is_player()):
+				if (selection):
+					selection.deselect()
+					
+					if (selection.pos == pos):
+						selection = null
+					else:
+						selection = cell
 				else:
 					selection = cell
+					
+				if (selection):
+					selection.select()
 			else:
-				selection = cell
-				
-			if (selection):
-				selection.select()
-		else:
-			if (selection):
-				if (pos.x >= (selection.pos.x - 1) and pos.x <= (selection.pos.x + 1) and pos.y >= (selection.pos.y - 1) and pos.y <= (selection.pos.y + 1)):
-					selection.attack(pos)
-				else:
+				if (selection):
 					selection.deselect()
 					selection = null
 			
@@ -62,7 +61,6 @@ func _input(event):
 
 		
 func get_tile_pos(pos):
-	pos -= tile_map.get_pos()
 	return tile_map.world_to_map(Vector2(pos.x / tile_map.get_scale().x, pos.y / tile_map.get_scale().y))
 
 
