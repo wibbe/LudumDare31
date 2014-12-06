@@ -6,6 +6,7 @@ const CELL_SCALE = 0.5
 var cell_board = {}
 var energy_board = {}
 var food_board = {}
+var cells_to_clear = []
 
 var tile_map = null
 
@@ -21,6 +22,13 @@ func tick():
 	for idx in cell_board:
 		var cell = cell_board[idx]
 		cell.tick()
+		
+	for cell in cells_to_clear:
+		remove_child(cell)
+		cell_board.erase(cell.pos)
+		cell.queue_free()
+		
+	cells_to_clear.clear()
 
 
 func draw_energy(pos):
@@ -60,6 +68,11 @@ func add_cell(pos, type, from):
 	cell.initialize(from, pos, self)
 		
 	return true
+
+
+func clear_cell(cell):
+	print("Killing ", cell.pos)
+	cells_to_clear.push_back(cell)
 	
 
 func add_energy(pos, energy):

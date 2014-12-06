@@ -4,8 +4,14 @@ extends Node2D
 const MAX_ENERGY = 100.0
 const INITIAL_ENERGY = 5.0
 const COLONIZE_ENERGY_COST = 10.0
+const ENERGY_DRAIN = 0.1
+const SEND_ENERGY_THRESHOLD = 10.0
 
 var FungusCell = preload("res://scenes/fungus_cell.scn")
+var textures  = [
+	preload("res://images/Fungus1a.tex"),
+	preload("res://images/Fungus2a.tex"),
+	preload("res://images/Fungus3a.tex")]
 
 var pos = Vector2(0, 0)
 var current_energy = 0
@@ -18,14 +24,22 @@ func _ready():
 	current_energy = INITIAL_ENERGY
 	sprite = get_node("Body")
 	sprite.set_rot(randf() * PI)
+	#sprite.set_texture(textures[randi() % 4])
 	
 	get_node("Selection").hide()
 	hide()
 	
 func _process(delta):
-	var scale = 0.6 + (current_energy / MAX_ENERGY) * 0.6
+	var target_scale = 0.6 + (current_energy / MAX_ENERGY) * 0.6
+	var scale = sprite.get_scale().x
+	
+	if (abs(target_scale - scale) < delta):
+		scale = target_scale
+	else:
+		scale += sign(target_scale - scale) * delta
+	
 	sprite.set_scale(Vector2(scale, scale))
-	pass
+
 
 func initialize(from_pos, pos_, board_):
 	pos = pos_
@@ -43,20 +57,23 @@ func initialize(from_pos, pos_, board_):
 		show()
 
 func tick():
-	var drawn = 0
 	if (current_energy < MAX_ENERGY):
 		var energy = board.draw_energy(pos)
 		current_energy += energy
-		drawn += 1
+		
+	current_energy -= ENERGY_DRAIN
 		
 	for colony in colonize:
 		var target = board.get_cell(colony)
 		if (not target and current_energy > COLONIZE_ENERGY_COST):
 			board.add_cell(colony, FungusCell, get_pos())
 			current_energy -= COLONIZE_ENERGY_COST
-		elif (target and target.is_player() and current_energy > 0):
+		elif (target and target.is_player() and current_energy > SEND_ENERGY_THRESHOLD):
 			if (target.transfere_energy(0.3)):
 				current_energy -= 0.3
+				
+	if (current_energy <= 0):
+		board.clear_cell(self)
 
 
 func transfere_energy(energy):
