@@ -101,11 +101,11 @@ func init_board():
 			else:
 				var rnd = randf()
 				if (rnd<0.05):  #5% chance that the cell has 1000-2000 energy
-					cells.add_energy(Vector2(x, y), round(1000+randf()*1000))
+					cells.add_energy(Vector2(x, y), round(1000 + randf() * 1000))
 				elif (rnd<0.35):  #30% chance that the cell has 500-1000 energy
-					cells.add_energy(Vector2(x, y), round(500+randf()*500))
+					cells.add_energy(Vector2(x, y), round(500 + randf() * 500))
 				else:  #65% chance that the cell has 0-500 energy
-					cells.add_energy(Vector2(x, y), round(randf()*500))
+					cells.add_energy(Vector2(x, y), round(randf() * 60))
 
 
 func get_world_pos(pos):
