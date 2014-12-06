@@ -10,16 +10,15 @@ func _ready():
 	body.set_rot(randf() * PI)
 	
 func update_scale(scale):
-	#if (scale > body.get_scale().x):
-	#body.set_scale(Vector2(scale, scale))
-	pass
+	if (scale > body.get_scale().x):
+		body.set_scale(Vector2(scale, scale))
 
 
 func initialize(from_pos, pos_, board_):
 	pos = pos_
 	board = board_
 	
-	board.add_background(pos)
+	board.add_background(pos, self)
 	
 	if (from_pos != null):
 		var animation = get_node("Animation")

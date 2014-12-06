@@ -90,8 +90,10 @@ func add_energy(pos, energy):
 
 
 func add_background(pos, background):
-	background_board[pos] = true
+	background_board[pos] = background
 	background.set_pos(get_world_pos(pos))
+	
+	get_parent().get_node("Webb").add_child(background)
 
 
 func get_world_pos(pos):
@@ -116,9 +118,9 @@ func reflectEnergy(pos):
 	if foodSceneObj!=null:
 		foodSceneObj.set_pos(get_world_pos(pos))
 		#foodSceneObj.initialize(null, pos, self)
-		add_child(foodSceneObj)
+		get_parent().get_node("Food").add_child(foodSceneObj)
 	if food_board.has(pos) and food_board[pos]!=null:
-		remove_child(food_board[pos])
+		get_parent().get_node("Food").remove_child(food_board[pos])
 	food_board[pos] = foodSceneObj
 	
 	
