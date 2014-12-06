@@ -16,15 +16,16 @@ var colonize = {}
 func _ready():
 	set_process(true)
 	current_energy = INITIAL_ENERGY
-	sprite = get_node("Sprite")
+	sprite = get_node("Background")
 	sprite.set_rot(randf() * PI)
 	
 	
 	get_node("Selection").hide()
 	
 func _process(delta):
-	var scale = 0.8 + (current_energy / MAX_ENERGY) * 0.6
-	sprite.set_scale(Vector2(scale, scale))
+	#var scale = 0.1 + (current_energy / MAX_ENERGY) * 0.9
+	#sprite.set_scale(Vector2(scale, scale))
+	pass
 
 func initialize(pos_, board_):
 	pos = pos_
