@@ -17,11 +17,13 @@ func _ready():
 	set_process(true)
 	current_energy = INITIAL_ENERGY
 	sprite = get_node("Sprite")
+	sprite.set_rot(randf() * PI)
+	
 	
 	get_node("Selection").hide()
 	
 func _process(delta):
-	var scale = 0.4 + (current_energy / MAX_ENERGY) * 0.6
+	var scale = 0.4 + (current_energy / MAX_ENERGY) * 0.8
 	sprite.set_scale(Vector2(scale, scale))
 
 func initialize(pos_, board_):
@@ -39,15 +41,19 @@ func tick():
 			board.add_cell(colony, FungusCell)
 			current_energy -= COLONIZE_ENERGY_COST
 		elif (target and target.is_player() and current_energy > 0):
-			current_energy -= 1.0
-			target.transfere_energy()
+			if (target.transfere_energy()):
+				current_energy -= 1.0
 			
 
 func transfere_energy():
-	current_energy += 1
+	if (current_energy < MAX_ENERGY):
+		current_energy += 1
+		return true
+	else:
+		return false
 
 func attack(pos):
-	if (not colonize.has(pos)):
+	if (not colonize.has(pos) && board.is_valid(pos)):
 		colonize[pos] = true
 
 func select():

@@ -1,7 +1,7 @@
 
 extends Node2D
 
-const CELL_SCALE = 0.3125
+const CELL_SCALE = 0.5
 
 var cell_board = {}
 var energy_board = {}
@@ -30,7 +30,7 @@ func is_empty(pos):
 
 
 func is_valid(pos):
-	return tile_map.get_cell(pos.x, pos.y)
+	return tile_map.get_cell(pos.x, pos.y) != -1
 
 
 func get_cell(pos):
@@ -64,6 +64,7 @@ func add_energy(pos, energy):
 	
 func get_world_pos(pos):
 	var world_pos = tile_map.map_to_world(Vector2(pos.x, pos.y))
+	#world_pos += tile_map.get_pos()
 	world_pos.x += 32
 	world_pos.y += 32
 	world_pos.x *= tile_map.get_scale().x

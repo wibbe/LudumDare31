@@ -2,9 +2,9 @@
 extends Node2D
 
 const START_TILE = 2
-const START_ENERGY = 200
-const CELL_SCALE = 0.3125
-const GAME_SPEED = 0.1
+const START_ENERGY = 1000
+const CELL_SCALE = 0.5
+const GAME_SPEED = 0.2
 
 var FungusCell = preload("res://scenes/fungus_cell.scn")
 
@@ -20,7 +20,7 @@ func _ready():
 	
 	cells = get_node("Cells")
 	tile_map = get_node("ValidTiles")
-	tile_map.hide()
+	#tile_map.hide()
 	init_board()
 
 func _process(delta):
@@ -32,15 +32,23 @@ func _process(delta):
 
 	
 func _input(event):
-	if (event.type == InputEvent.MOUSE_BUTTON):
+	if (event.type == InputEvent.MOUSE_BUTTON && event.pressed):
 		var pos = get_tile_pos(event.pos)
 		var cell = cells.get_cell(pos)
 		
 		if (cell and cell.is_player()):
 			if (selection):
 				selection.deselect()
-			selection = cell
-			selection.select()
+				
+				if (selection.pos == pos):
+					selection = null
+				else:
+					selection = cell
+			else:
+				selection = cell
+				
+			if (selection):
+				selection.select()
 		else:
 			if (selection):
 				if (pos.x >= (selection.pos.x - 1) and pos.x <= (selection.pos.x + 1) and pos.y >= (selection.pos.y - 1) and pos.y <= (selection.pos.y + 1)):
@@ -54,6 +62,7 @@ func _input(event):
 
 		
 func get_tile_pos(pos):
+	pos -= tile_map.get_pos()
 	return tile_map.world_to_map(Vector2(pos.x / tile_map.get_scale().x, pos.y / tile_map.get_scale().y))
 
 
