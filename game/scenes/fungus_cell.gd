@@ -8,6 +8,10 @@ const ENERGY_DRAIN = 0.1
 const SEND_ENERGY_THRESHOLD = 10.0
 
 var FungusCell = preload("res://scenes/fungus_cell.scn")
+var textures  = [
+	preload("res://images/Fungus1a.tex"),
+	preload("res://images/Fungus2a.tex"),
+	preload("res://images/Fungus3a.tex")]
 
 var pos = Vector2(0, 0)
 var current_energy = 0
@@ -20,6 +24,7 @@ func _ready():
 	current_energy = INITIAL_ENERGY
 	sprite = get_node("Body")
 	sprite.set_rot(randf() * PI)
+	#sprite.set_texture(textures[randi() % 4])
 	
 	get_node("Selection").hide()
 	hide()
