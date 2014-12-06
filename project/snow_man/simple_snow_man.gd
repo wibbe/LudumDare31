@@ -12,6 +12,8 @@ var legs = null
 var body = null
 var head = null
 var animations = null
+var parts = []
+var current_part = 0
 
 func _ready():
 	set_fixed_process(true)
@@ -21,6 +23,10 @@ func _ready():
 	body = get_parent().get_node("Body")
 	head = get_parent().get_node("Head")
 	animations = get_node("Animations")
+	
+	parts.append(legs)
+	parts.append(body)
+	parts.append(head)
 	
 	# Start the idle animation
 	animations.play("Idle")
@@ -55,27 +61,25 @@ func _fixed_process(delta):
 		if (n.dot(Vector2(0, 1)) < -0.3):
 			grounded = true
 		else:
-			grounded = false	
+			grounded = false
 	else:
 		grounded = false
+		
+	if (velocity.x < -0.05):
+		set_scale(Vector2(-1, 1))
+	elif (velocity.x > 0.05):
+		set_scale(Vector2(1, 1))
 
-func disconnect_parts():	
+func disconnect_parts():
 	if (not connected):
 		return
-		
-	print("Disconncting parts")
 	
 	connected = false
 	
 	animations.stop_all()
 	animations.play("BreakApart")
 	yield(animations, "finished")
-	
-	print("Break")
-	
-	body.set_mode(RigidBody2D.MODE_RIGID)
-	head.set_mode(RigidBody2D.MODE_RIGID)
-	legs.set_mode(RigidBody2D.MODE_RIGID)
+
 	get_node("RemoteHead").set_remote_node(NodePath(""))
 	get_node("RemoteBody").set_remote_node(NodePath(""))
 	get_node("RemoteLegs").set_remote_node(NodePath(""))
