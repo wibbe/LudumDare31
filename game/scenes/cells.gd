@@ -116,7 +116,6 @@ func reflectEnergy(pos):
 		foodSceneObj = food1.instance()
 	if foodSceneObj!=null:
 		foodSceneObj.set_pos(get_world_pos(pos))
-		#foodSceneObj.initialize(null, pos, self)
 		get_parent().get_node("Food").add_child(foodSceneObj)
 	if food_board.has(pos) and food_board[pos]!=null:
 		get_parent().get_node("Food").remove_child(food_board[pos])
