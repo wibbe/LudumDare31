@@ -5,7 +5,9 @@ const MAX_ENERGY = 100.0
 const INITIAL_ENERGY = 5.0
 const COLONIZE_ENERGY_COST = 10.0
 const ENERGY_DRAIN = 0.1
+const ENERGY_TRANSFER = 0.5
 const SEND_ENERGY_THRESHOLD = 10.0
+
 
 var FungusCell = preload("res://scenes/fungus_cell.scn")
 var FungusCellBackground = preload("res://scenes/fungus_cell_background.scn")
@@ -20,7 +22,9 @@ var current_energy = 0
 var board = null
 var sprite = null
 var background = null
-var colonize = {}
+
+var current_attack_pos = null
+var next_attack_pos = null
 
 func _ready():
 	set_process(true)
@@ -31,9 +35,10 @@ func _ready():
 	
 	get_node("Selection").hide()
 	hide()
-	
+
+
 func _process(delta):
-	var target_scale = 0.4 + (current_energy / MAX_ENERGY) * 0.8
+	var target_scale = 0.4 + (current_energy / MAX_ENERGY) * 0.6
 	var scale = sprite.get_scale().x
 	
 	if (abs(target_scale - scale) < delta):
@@ -44,27 +49,41 @@ func _process(delta):
 	sprite.set_scale(Vector2(scale, scale))
 	if (background):
 		background.update_scale(scale)
+		
+	# Control the attack animation
+	var animation = get_node("ArmAnimation")
+	if (not animation.is_playing() and (current_attack_pos != null or next_attack_pos != null)):
+	
+		if (current_attack_pos != null and next_attack_pos != null):
+			# Retract the arm
+			print("Retracting arm")
+			animation.play("Attack", -1, -1, true)
+			current_attack_pos = null
+		elif (current_attack_pos == null and next_attack_pos != null):
+			# Extend the arm by only if we are attacking another cell besides our own
+			if (next_attack_pos != pos):
+				print("Extending arm")
+				var arm = get_node("Arm")
+				arm.set_rot(get_pos().angle_to_point(board.get_world_pos(next_attack_pos)))
+				
+				animation.play("Attack", -1, 1, false)
+				current_attack_pos = next_attack_pos
+			
+			next_attack_pos = null
 
 
-func initialize(from_pos, pos_, board_):
+func initialize(pos_, board_):
 	pos = pos_
 	board = board_
-	
-	if (from_pos != null):
-		var animation = get_node("Animation")
-		var arm = get_node("Arm")
-		arm.set_rot(get_pos().angle_to_point(from_pos) + deg2rad(90))
-		animation.play("Attack")
-		show()
-	else:
-		get_node("Body").set_opacity(1.0)
-		get_node("Arm").set_opacity(0.0)
-		show()
+
+	get_node("Body").set_opacity(1.0)
+	get_node("Arm").set_opacity(0.0)
+	show()
 
 		
 	if (not board.has_background(pos)):
 		background = FungusCellBackground.instance()
-		background.initialize(from_pos, pos, board)
+		background.initialize(pos, board)
 
 func tick():
 	if (current_energy < MAX_ENERGY):
@@ -72,30 +91,34 @@ func tick():
 		current_energy += energy
 		
 	current_energy -= ENERGY_DRAIN
-		
-	for colony in colonize:
-		var target = board.get_cell(colony)
-		if (not target and current_energy > COLONIZE_ENERGY_COST):
-			board.add_cell(colony, FungusCell, get_pos())
+	
+	# Transfere energy if 
+	if (current_attack_pos != null):
+		var target_cell = board.get_cell(current_attack_pos)
+		if (not target_cell and current_energy > COLONIZE_ENERGY_COST):
+			board.add_cell(current_attack_pos, FungusCell)
 			current_energy -= COLONIZE_ENERGY_COST
-		elif (target and target.is_player() and current_energy > SEND_ENERGY_THRESHOLD):
-			if (target.transfere_energy(0.3)):
-				current_energy -= 0.3
-				
+		elif (target_cell and current_energy > SEND_ENERGY_THRESHOLD):
+			if (target_cell.is_player() and target_cell.transfer_energy(ENERGY_TRANSFER)):
+				current_energy -= ENERGY_TRANSFER
+			# Need to attack enemy cells here!!!
+	
+	# The cell is killed if we run out of energy
 	if (current_energy <= 0):
 		board.clear_cell(self)
 
 
-func transfere_energy(energy):
+func transfer_energy(energy):
 	if (current_energy < MAX_ENERGY):
 		current_energy += energy
 		return true
 	else:
 		return false
 
+
 func attack(pos):
-	if (not colonize.has(pos) && board.is_valid(pos)):
-		colonize[pos] = true
+	next_attack_pos = pos
+
 
 func select():
 	get_node("Selection").show()

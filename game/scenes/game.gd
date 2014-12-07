@@ -39,7 +39,7 @@ func _process(delta):
 	
 func _input(event):
 	if (event.type == InputEvent.MOUSE_BUTTON):
-		if (event.pressed):
+		if (event.pressed and event.button_index == 1):
 			var pos = get_tile_pos(event.pos)
 			var cell = cells.get_cell(pos)
 		
@@ -47,15 +47,30 @@ func _input(event):
 				pressed_pos = pos
 			else:
 				pressed_pos = null
-		elif (pressed_pos != null):
+		elif (pressed_pos != null and event.button_index == 1):
+			# Left-dragging will extend the arm towards the cell
 			var pos = get_tile_pos(event.pos)
 			var cell = cells.get_cell(pos)
 		
-			if (not cell or not cell.is_player()):
-				if ((pos.x == pressed_pos.x and abs(pos.y - pressed_pos.y) == 1) or (pos.y == pressed_pos.y and abs(pos.x - pressed_pos.x) == 1)):
-					var selected = cells.get_cell(pressed_pos)
-					selected.attack(pos)
-					spread.hide()
+			if ((pos.x == pressed_pos.x) or (pos.y == pressed_pos.y)):
+				var selected = cells.get_cell(pressed_pos)
+				
+				if (pressed_pos != pos):
+					pressed_pos.x += sign(pos.x - pressed_pos.x) * 1
+					pressed_pos.y += sign(pos.y - pressed_pos.y) * 1
+				
+				selected.attack(pressed_pos)
+				spread.hide()
+				
+			pressed_pos = null
+			
+		elif (event.pressed and event.button_index == 2):
+			# Right-clicking on a cell will retrackt the arm
+			var pos = get_tile_pos(event.pos)
+			var cell = cells.get_cell(pos)
+		
+			if (cell and cell.is_player()):
+				cell.attack(pos)
 		
 			pressed_pos = null
 	elif (event.type == InputEvent.MOUSE_MOTION):
@@ -65,11 +80,10 @@ func _input(event):
 			var pos = get_tile_pos(event.pos)
 			var cell = cells.get_cell(pos)
 		
-			if (not cell or not cell.is_player()):
-				if ((pos.x == pressed_pos.x and abs(pos.y - pressed_pos.y) == 1) or (pos.y == pressed_pos.y and abs(pos.x - pressed_pos.x) == 1)):
-					spread.show();
-					spread.set_pos(get_world_pos(pressed_pos))
-					spread.set_rot(spread.get_pos().angle_to_point(get_world_pos(pos)))
+			if (((pos.x == pressed_pos.x) or (pos.y == pressed_pos.y)) and pos != pressed_pos):
+				spread.show();
+				spread.set_pos(get_world_pos(pressed_pos))
+				spread.set_rot(spread.get_pos().angle_to_point(get_world_pos(pos)))
 		else:
 			spread.hide()
 			
@@ -96,7 +110,7 @@ func init_board():
 			var tile = tile_map.get_cell(x, y)
 			
 			if (tile == START_TILE):
-				cells.add_cell(Vector2(x, y), FungusCell, null)
+				cells.add_cell(Vector2(x, y), FungusCell)
 				cells.add_energy(Vector2(x, y), START_ENERGY)
 			else:
 				var rnd = randf()

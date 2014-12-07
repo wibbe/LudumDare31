@@ -61,7 +61,7 @@ func get_cell(pos):
 		return null
 
 
-func add_cell(pos, type, from):
+func add_cell(pos, type):
 	if (not is_empty(pos)):
 		return false
 	
@@ -71,7 +71,7 @@ func add_cell(pos, type, from):
 	cell_board[pos] = cell
 	
 	cell.set_pos(get_world_pos(pos))
-	cell.initialize(from, pos, self)
+	cell.initialize(pos, self)
 		
 	return true
 
