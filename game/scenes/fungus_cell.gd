@@ -19,7 +19,7 @@ var textures  = {
 
 var animations = {
 	Constants.HUMAN_PLAYER: preload("res://images/line_spread_animation_A.res"),
-	Constants.AI_PLAYER: preload("res://images/line_spread_animation_b.res")
+	Constants.AI_PLAYER: preload("res://images/line_spread_animation_B.res")
 }
 
 var pos = Vector2(0, 0)
