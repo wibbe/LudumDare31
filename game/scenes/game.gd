@@ -1,10 +1,6 @@
 
 extends Node2D
 
-const START_ENERGY = 1000
-const CELL_SCALE = 0.5
-const GAME_SPEED = 0.1
-
 
 var FungusCell = preload("res://scenes/fungus_cell.scn")
 var Constants = preload("res://scenes/constants.gd")
@@ -32,8 +28,8 @@ func _ready():
 
 func _process(delta):
 	time_to_next_tick += delta
-	while (time_to_next_tick > GAME_SPEED):
-		time_to_next_tick -= GAME_SPEED
+	while (time_to_next_tick > Constants.GAME_SPEED):
+		time_to_next_tick -= Constants.GAME_SPEED
 		
 		cells.tick()
 
@@ -112,15 +108,15 @@ func init_board():
 			
 			if (tile == Constants.PLAYER_START_TILE):
 				cells.add_cell(Vector2(x, y), FungusCell, Constants.HUMAN_PLAYER)
-				cells.add_energy(Vector2(x, y), START_ENERGY)
+				cells.add_energy(Vector2(x, y), Constants.START_ENERGY)
 			elif (tile == Constants.AI_START_TILE):
 				cells.add_cell(Vector2(x, y), FungusCell, Constants.AI_PLAYER)
-				cells.add_energy(Vector2(x, y), START_ENERGY)
+				cells.add_energy(Vector2(x, y), Constants.START_ENERGY)
 			else:
 				var rnd = randf()
-				if (rnd<0.05):  #5% chance that the cell has 1000-2000 energy
+				if (rnd < 0.05):  #5% chance that the cell has 1000-2000 energy
 					cells.add_energy(Vector2(x, y), round(1000 + randf() * 1000))
-				elif (rnd<0.35):  #30% chance that the cell has 500-1000 energy
+				elif (rnd < 0.35):  #30% chance that the cell has 500-1000 energy
 					cells.add_energy(Vector2(x, y), round(500 + randf() * 500))
 				else:  #65% chance that the cell has 0-500 energy
 					cells.add_energy(Vector2(x, y), round(randf() * 60))
