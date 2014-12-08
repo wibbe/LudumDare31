@@ -19,6 +19,7 @@ var textures  = {
 
 var pos = Vector2(0, 0)
 var current_energy = 0
+var attack_count = 0
 var board = null
 var sprite = null
 var energy_bar = null
@@ -108,6 +109,9 @@ func _process(delta):
 
 
 func tick():
+	if (attack_count > 0):
+		attack_count -= 1
+
 	if (current_energy < Constants.MAX_ENERGY):
 		var energy = board.draw_energy(pos)
 		current_energy += energy
@@ -121,9 +125,11 @@ func tick():
 			board.add_cell(current_attack_pos, FungusCell, owner)
 			current_energy -= Constants.COLONIZE_ENERGY_COST
 		elif (target_cell and current_energy > Constants.SEND_ENERGY_THRESHOLD):
-			if (target_cell.is_player() and target_cell.transfer_energy(Constants.ENERGY_TRANSFER)):
-				current_energy -= Constants.ENERGY_TRANSFER
-			# Need to attack enemy cells here!!!
+			if (target_cell.is_player()):
+				current_energy -= target_cell.transfer_energy(Constants.ENERGY_TRANSFER)
+			else:
+				target_cell.drain_energy(Constants.ATTACK_ENERGY)
+				current_energy -= Constants.ATTACK_ENERGY * 0.5
 	
 	# The cell is killed if we run out of energy
 	if (current_energy <= 0):
@@ -132,15 +138,24 @@ func tick():
 
 func transfer_energy(energy):
 	if (current_energy < Constants.MAX_ENERGY):
-		current_energy += energy
-		return true
+		var needed = min(Constants.MAX_ENERGY - current_energy, energy)
+		current_energy += needed
+		return needed
 	else:
-		return false
+		return 0.0
+
+
+func drain_energy(energy):
+	current_energy -= energy
+	attack_count = 10
 
 
 func attack(pos):
 	next_attack_pos = pos
 
+
+func is_attacked():
+	return attack_count > 0
 
 func select():
 	get_node("Selection").show()

@@ -1,7 +1,8 @@
 
 extends Node2D
 
-
+const ENEMY_FIELD_MAX_DISTANCE = 4
+const OFFSETS = [Vector2(-1, 0), Vector2(0, -1), Vector2(1, 0), Vector2(0, 1)]
 
 var board = null
 var time_to_tick = 0.0
@@ -29,45 +30,50 @@ func _process(delta):
 
 
 func tick():
-	var possible_location = []
-	var cells = collect_cells()
-	
-	var new_state = {}
-	
-	
-	cell_state = new_state
-
-
-func calculate_enemy_field():
-	enemy_field = {}
+	var field = {}
+	var potential_positions = {}
 	var hotspots = []
 	
-	for idx in board.get_cells():
-		var cell = board.get_cells()[idx]
+	collect_information(potential_positions, hotspots)
+	
+	print("Hotspots: ", hotspots.size())
+
+
+func collect_information(positions, hotspots):
+	for idx in board.get_cell_board():
+		var cell = board.get_cell_board()[idx]
 		if (cell.is_player()):
-			hotspots.pust_back(idx)
+			hotspots.append({"value": -6, "decay": 2, "pos": idx})
+		else:
+			# This cell is beeing attacked add a strong hotspot here
+			if (cell.is_attacked()):
+				hotspots.append({"value": 20, "decay": -2, "pos": idx})
 			
-	calculate_potential_field(enemy_field, hotspots)
+			# Add the positions around the ai cell as potential positions to evaluate
+			for offset in OFFSETS:
+				var pos = idx + offset
+				if (board.is_valid(pos)):
+					positions[pos] = 0.0
 
 
-func calculate_potential_field(field, hotspots):
-	for y in range(board.minIdx.y, board.maxIdx.y):
-		for x in range(board.minIdx.x, board.maxIdx.x):
-			var value = 0.0
-
-func collect_cells():
-	var cells = []
+func manhattan_dist(p1, p2):
+	return abs(p1.x - p2.x) + abs(p1.y - p2.y)
 	
-	for idx in board.get_cells():
-		var cell = board.get_cells()[idx]
-		if (not cell.is_player()):
-			cells.push_back(cell)
-	
-	return cells
+
+func calculate_potential_field(positions, hotspots):
+	for position in positions:
+		var value = 0
+		
+		for hotspot in hotspots:
+			value += max(0, hotspot["value"] - (manhattan_dist(position, hotspot["pos"]) * hotspot["decay"]))
+		
+		positions[position] = value
+
+
 
 func calculate_next_tick_rate():
 	return Constants.AI_TICK_RATE * randf() * Constants.AT_TICK_RATE_VARIATION
 
 
-func cells_added():
+func cell_added():
 	enemy_field_dirty = true

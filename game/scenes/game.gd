@@ -14,10 +14,6 @@ var time_to_next_tick = 0.0
 var selection = null
 var pressed_pos = null
 
-var minIdx
-var maxIdx
-
-
 func _ready():
 	set_process_input(true)
 	set_process(true)
@@ -104,16 +100,7 @@ func get_tile_pos(pos):
 	return tile_map.world_to_map(Vector2(pos.x / tile_map.get_scale().x, pos.y / tile_map.get_scale().y))
 
 
-func update_min_max(x, y):
-	minIdx.x = min(x, minIdx.x)
-	minIdx.y = min(y, minIdx.y)
-	maxIdx.x = max(x, maxIdx.x)
-	maxIdx.y = max(y, maxIdx.y)
-
 func init_board():
-	minIdx = Vector2(-100, -100)
-	maxIdx = Vector2(100, 100)
-
 	for y in range(0, tile_map.get_cell_size().y):
 		for x in range(0, tile_map.get_cell_size().x):
 			var tile = tile_map.get_cell(x, y)
@@ -121,11 +108,11 @@ func init_board():
 			if (tile == Constants.PLAYER_START_TILE):
 				cells.add_cell(Vector2(x, y), FungusCell, Constants.HUMAN_PLAYER)
 				cells.add_energy(Vector2(x, y), Constants.START_ENERGY)
-				update_min_max(x, y)
+				cells.update_min_max(x, y)
 			elif (tile == Constants.AI_START_TILE):
 				cells.add_cell(Vector2(x, y), FungusCell, Constants.AI_PLAYER)
 				cells.add_energy(Vector2(x, y), Constants.START_ENERGY)
-				update_min_max(x, y)
+				cells.update_min_max(x, y)
 			elif (tile == Constants.PLAY_FIELD_TILE):
 				var rnd = randf()
 				if (rnd < 0.05):  #5% chance that the cell has 1000-2000 energy
@@ -134,7 +121,9 @@ func init_board():
 					cells.add_energy(Vector2(x, y), round(500 + randf() * 500))
 				else:  #65% chance that the cell has 0-500 energy
 					cells.add_energy(Vector2(x, y), round(randf() * 60))
-				update_min_max(x, y)
+				cells.update_min_max(x, y)
+				
+	print("Game world: (", cells.minIdx.x, ",", cells.minIdx.y, ") -> (", cells.maxIdx.x, ", ", cells.maxIdx.y, ")")
 
 
 func get_world_pos(pos):

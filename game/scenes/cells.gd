@@ -9,6 +9,9 @@ var background_board = {}
 var food_board = {}
 var cells_to_clear = []
 
+var minIdx
+var maxIdx
+
 var tile_map = null
 
 var food1 = preload("res://scenes/food1.scn")
@@ -17,6 +20,8 @@ var food3 = preload("res://scenes/food3.scn")
 
 func _ready():
 	tile_map = get_node("../ValidTiles")
+	minIdx = Vector2(100, 100)
+	maxIdx = Vector2(-100, -100)
 
 
 func tick():
@@ -61,9 +66,12 @@ func get_cell(pos):
 		return null
 
 
-func get_cells():
+func get_cell_board():
 	return cell_board
 
+
+func get_food_board():
+	return food_board
 
 func add_cell(pos, type, owner):
 	if (not is_empty(pos)):
@@ -77,7 +85,7 @@ func add_cell(pos, type, owner):
 	cell.set_pos(get_world_pos(pos))
 	cell.initialize(pos, owner, self)
 	
-	#get_parent().get_node("AIPlayer").cell_added()
+	get_parent().get_node("AIPlayer").cell_added()
 	return true
 
 
@@ -109,6 +117,13 @@ func get_world_pos(pos):
 	world_pos.y *= tile_map.get_scale().y
 	
 	return world_pos
+
+
+func update_min_max(x, y):
+	minIdx.x = min(x, minIdx.x)
+	minIdx.y = min(y, minIdx.y)
+	maxIdx.x = max(x, maxIdx.x)
+	maxIdx.y = max(y, maxIdx.y)
 
 
 func reflectEnergy(pos):
