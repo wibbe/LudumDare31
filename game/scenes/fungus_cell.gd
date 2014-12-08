@@ -17,6 +17,11 @@ var textures  = {
 		preload("res://images/FungusBad3.tex")]
 }
 
+var animations = {
+	Constants.HUMAN_PLAYER: preload("res://images/line_spread_animation_A.res"),
+	Constants.AI_PLAYER: preload("res://images/line_spread_animation_b.res")
+}
+
 var pos = Vector2(0, 0)
 var current_energy = 0
 var attack_count = 0
@@ -52,6 +57,7 @@ func initialize(pos_, owner_, board_):
 	print("Cell: ", owner)
 	
 	sprite.set_texture(textures[owner][randi() % 3])
+	get_node("Arm/Connection").set_sprite_frames(animations[owner])
 
 	sprite.set_opacity(1.0)
 	get_node("Arm").set_opacity(0.0)
