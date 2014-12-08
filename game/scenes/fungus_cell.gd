@@ -97,13 +97,14 @@ func _process(delta):
 		
 	# Control the attack animation
 	if (not arm_animation.is_playing() and (current_attack_pos != null or next_attack_pos != null)):
-		get_parent().get_parent().get_node("SamplePlayer2D").play("spread1")
 		if (current_attack_pos != null and next_attack_pos != null):
 			# Retract the arm
+			playSpreadSound()
 			arm_animation.play("Attack", -1, -1, true)
 			current_attack_pos = null
 		elif (current_attack_pos == null and next_attack_pos != null):
 			# Extend the arm by only if we are attacking another cell besides our own
+			playSpreadSound()
 			if (next_attack_pos != pos):
 				var arm = get_node("Arm")
 				arm.set_rot(get_pos().angle_to_point(board.get_world_pos(next_attack_pos)))
@@ -113,6 +114,9 @@ func _process(delta):
 			
 			next_attack_pos = null
 
+func playSpreadSound():
+	if is_player():
+		get_parent().get_parent().get_node("SamplePlayer2D").play("spread"+str(1+floor(randf()*3)))
 
 func tick():
 	if (attack_count > 0):
