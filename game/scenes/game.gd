@@ -37,6 +37,13 @@ func _process(delta):
 			time_to_next_tick -= Constants.GAME_SPEED
 			
 			cells.tick()
+		
+		# Stop the game if one of the players run out of cells
+		if cells.ai_cell_count == 0:
+			is_playing = false
+		elif cells.player_cell_count == 0:
+			is_playing = false
+			
 
 	
 func _input(event):
