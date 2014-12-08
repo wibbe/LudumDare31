@@ -147,7 +147,7 @@ func transfer_energy(energy):
 
 func drain_energy(energy):
 	current_energy -= energy
-	attack_count = 10
+	attack_count = 30
 
 
 func attack(pos):

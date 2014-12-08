@@ -11,6 +11,8 @@ var cell_state = {}
 var positions = {}
 var hotspots = []
 
+var debug_info_for = null
+
 
 var Constants = preload("res://scenes/constants.gd")
 var ubuntu_mono = preload("res://fonts/ubuntu_mono.fnt")
@@ -38,6 +40,22 @@ func _draw():
 			color = Color(0, 1, 0)
 		
 		draw_rect(Rect2(pos.x - 15, pos.y - 15, 4, 4), color)
+		
+	for idx in board.get_cell_board():
+		var cell = board.get_cell_board()[idx]
+		if (not cell.is_player() and cell.is_attacked()):
+			var pos = cell.get_pos()
+			draw_rect(Rect2(pos.x - 15, pos.y + 11, 4, 4), Color(0, 0, 1))
+			
+	if (debug_info_for != null):
+		var cell = board.get_cell_board()[debug_info_for]
+		
+		for offset in OFFSETS:
+			var pos = debug_info_for + offset
+			var world_pos = board.get_world_pos(pos)
+			var string = str(int(calculate_potential_field_value(pos, hotspots)))
+			var size = ubuntu_mono.get_string_size(string)
+			draw_string(ubuntu_mono, Vector2(world_pos.x - (size.x * 0.5), world_pos.y), string)
 		
 	#for idx in positions:
 	#	var pos = board.get_world_pos(idx)

@@ -67,6 +67,15 @@ func _input(event):
 		
 			if (cell and cell.is_player()):
 				cell.attack(pos)
+				
+		elif (event.pressed and event.button_index == 3):
+			var pos = get_tile_pos(event.pos)
+			var cell = cells.get_cell(pos)
+		
+			if (cell and not cell.is_player()):
+				get_node("AIPlayer").debug_info_for = pos
+			else:
+				get_node("AIPlayer").debug_info_for = null
 		
 			pressed_pos = null
 	elif (event.type == InputEvent.MOUSE_MOTION):
