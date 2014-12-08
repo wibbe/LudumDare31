@@ -33,6 +33,7 @@ func _process(delta):
 	time_to_tick -= delta
 	if (time_to_tick < 0):
 		collect_information()
+		update()
 		time_to_tick = calculate_next_tick_rate()
 	
 	if (all_cells.size() > 0):
@@ -64,12 +65,11 @@ func _draw():
 			for offset in OFFSETS:
 				var pos = debug_info_for + offset
 				var world_pos = board.get_world_pos(pos)
-				var string = str(int(calculate_potential_field_value(pos, hotspots)))
+				var string = str(int(calculate_potential_field_value(cell, pos)))
 				var size = ubuntu_mono.get_string_size(string)
 				draw_string(ubuntu_mono, Vector2(world_pos.x - (size.x * 0.5), world_pos.y), string)
 
 
-	
 
 
 func process_cell(cell):
@@ -79,21 +79,25 @@ func process_cell(cell):
 	for offset in OFFSETS:
 		var pos = cell.pos + offset
 		if (board.is_valid(pos)):
-			var score = calculate_potential_field_value(pos)
+			var score = calculate_potential_field_value(cell, pos)
 			if (score > selected_score):
 				selected_score = score
 				selected_pos = pos
 			
-	if (selected_pos != null and selected_score != 0):
+	if (selected_pos != null):
 		if (cell.current_energy > Constants.COLONIZE_ENERGY_COST * 3):
-		cell.attack(selected_pos)
+			cell.attack(selected_pos)
+		else:
+			cell.attack(null)
+	else:
+		cell.attack(null)
 
 
 func manhattan_dist(p1, p2):
 	return abs(p1.x - p2.x) + abs(p1.y - p2.y)
 	
 
-func calculate_potential_field_value(position):
+func calculate_potential_field_value(source, position):
 	var value = 0
 		
 	for hotspot in hotspots:
@@ -101,8 +105,11 @@ func calculate_potential_field_value(position):
 		value += max(0, abs(hotspot["value"]) - (dist * hotspot["decay"])) * sign(hotspot["value"])
 	
 	var cell = board.get_cell(position)
-	if (cell and not cell.is_player() and cell.current_energy > 80):
-		value += Constants.OWN_CELL_PENALTY
+	if (cell and not cell.is_player()):
+		if (cell.current_energy < 20 and source.current_energy > 60):
+			value += Constants.OWN_CELL_SCORE
+		elif (cell.current_energy > 60):
+			value -= Constants.OWN_CELL_SCORE
 	
 	return value
 
