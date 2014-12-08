@@ -25,6 +25,7 @@ func _ready():
 	spread = get_node("Cells/Spread")
 	
 	tile_map.hide()
+	spread.hide()
 
 
 func _process(delta):
