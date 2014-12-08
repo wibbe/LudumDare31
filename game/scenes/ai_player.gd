@@ -105,15 +105,14 @@ func calculate_potential_field_value(source, position):
 		value += max(0, abs(hotspot["value"]) - (dist * hotspot["decay"])) * sign(hotspot["value"])
 	
 	var cell = board.get_cell(position)
-	if (cell):
-		if (not cell.is_player()):
-			if (not cell.is_attacked()):
+	if cell:
+		if not cell.is_player():
+			if not cell.is_attacked():
 				if (cell.current_energy < 20 and source.current_energy > 60):
 					value += Constants.OWN_CELL_SCORE
 				elif (cell.current_energy > 60):
 					value -= Constants.OWN_CELL_SCORE
-		else:
-			pass
+			
 	
 	return value
 

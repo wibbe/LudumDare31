@@ -26,6 +26,8 @@ func _ready():
 	
 	tile_map.hide()
 	spread.hide()
+	
+	get_node("SplashScreen").show()
 
 
 func _process(delta):
