@@ -28,6 +28,7 @@ var owner = Constants.HUMAN_PLAYER
 
 var current_attack_pos = null
 var next_attack_pos = null
+var arm_animation_time = 0.0
 
 func _ready():
 	set_process(true)
@@ -75,6 +76,17 @@ func _process(delta):
 	
 	if (background):
 		background.update_scale(scale)
+		
+	# Update arm animation
+	arm_animation_time += delta
+	while (arm_animation_time >= Constants.FUNGUS_ARM_ANIMATION_FRAME_TIME):
+		arm_animation_time -= Constants.FUNGUS_ARM_ANIMATION_FRAME_TIME
+		var connection = get_node("Arm/Connection")
+		var frame_count = connection.get_sprite_frames().get_frame_count()
+		var next_frame = connection.get_frame() + 1
+		if (next_frame >= frame_count):
+			next_frame = 0
+		connection.set_frame(next_frame)
 		
 	# Control the attack animation
 	if (not arm_animation.is_playing() and (current_attack_pos != null or next_attack_pos != null)):

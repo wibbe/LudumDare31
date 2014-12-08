@@ -77,7 +77,7 @@ func add_cell(pos, type, owner):
 	cell.set_pos(get_world_pos(pos))
 	cell.initialize(pos, owner, self)
 	
-	get_parent().get_node("AIPlayer").cell_added()
+	#get_parent().get_node("AIPlayer").cell_added()
 	return true
 
 

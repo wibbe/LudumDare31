@@ -34,17 +34,6 @@ func tick():
 	
 	var new_state = {}
 	
-	for cell in cells:
-		var pos = cell.pos
-		var state = null
-		
-		if (cell_state.has(pos)):
-			state = cell_state[pos]
-		else:
-			state = CellState.new(pos)
-			
-		state.evaluate()
-		new_state[pos] = new_state
 	
 	cell_state = new_state
 
