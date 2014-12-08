@@ -70,8 +70,8 @@ func get_cell_board():
 	return cell_board
 
 
-func get_food_board():
-	return food_board
+func get_energy_board():
+	return energy_board
 
 func add_cell(pos, type, owner):
 	if (not is_empty(pos)):

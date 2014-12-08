@@ -125,7 +125,7 @@ func tick():
 			board.add_cell(current_attack_pos, FungusCell, owner)
 			current_energy -= Constants.COLONIZE_ENERGY_COST
 		elif (target_cell and current_energy > Constants.SEND_ENERGY_THRESHOLD):
-			if (target_cell.is_player()):
+			if (target_cell.owner == owner):
 				current_energy -= target_cell.transfer_energy(Constants.ENERGY_TRANSFER)
 			else:
 				target_cell.drain_energy(Constants.ATTACK_ENERGY)
@@ -151,7 +151,8 @@ func drain_energy(energy):
 
 
 func attack(pos):
-	next_attack_pos = pos
+	if (pos != current_attack_pos):
+		next_attack_pos = pos
 
 
 func is_attacked():

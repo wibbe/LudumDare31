@@ -8,11 +8,12 @@ var board = null
 var time_to_tick = 0.0
 var cell_state = {}
 
-var enemy_field_dirty = true
-var enemy_field = {}
+var positions = {}
+var hotspots = []
 
 
 var Constants = preload("res://scenes/constants.gd")
+var ubuntu_mono = preload("res://fonts/ubuntu_mono.fnt")
 
 
 
@@ -29,45 +30,82 @@ func _process(delta):
 		time_to_tick = calculate_next_tick_rate()
 
 
+func _draw():
+	for hotspot in hotspots:
+		var pos = board.get_world_pos(hotspot["pos"])
+		var color = Color(1, 0, 0)
+		if (hotspot["value"] > 0):
+			color = Color(0, 1, 0)
+		
+		draw_rect(Rect2(pos.x - 15, pos.y - 15, 4, 4), color)
+		
+	#for idx in positions:
+	#	var pos = board.get_world_pos(idx)
+	#	var string = str(int(positions[idx]))
+	#	var size = ubuntu_mono.get_string_size(string)
+	#	draw_string(ubuntu_mono, Vector2(pos.x - (size.x * 0.5), pos.y), string)
+
+	
+
+
 func tick():
-	var field = {}
-	var potential_positions = {}
-	var hotspots = []
+	hotspots = []
+	positions = {}
 	
-	collect_information(potential_positions, hotspots)
+	collect_information(hotspots)
+	#calculate_potential_field(positions, hotspots)
 	
-	print("Hotspots: ", hotspots.size())
+	for idx in board.get_cell_board():
+		var cell = board.get_cell_board()[idx]
+		if (not cell.is_player()):
+			var selected_pos = null
+			var selected_score = 0
+			
+			for offset in OFFSETS:
+				var pos = idx + offset
+				var score = calculate_potential_field_value(pos, hotspots)
+				if (score > selected_score):
+					selected_score = score
+					selected_pos = pos
+					
+			if (selected_pos != null and selected_score != 0):
+				if (cell.current_energy > Constants.COLONIZE_ENERGY_COST * 3):
+				cell.attack(selected_pos)
+	
+	update()
 
 
-func collect_information(positions, hotspots):
+func collect_information(hotspots):
+	# Process all the food sources in the board
+	for idx in board.get_energy_board():
+		var amount = board.get_energy_board()[idx]
+		if (amount > 100):
+			#var value = (amount / 2000.0) * Constants.HOTSPOT_FOOD_VALUE
+			hotspots.append({"value": Constants.HOTSPOT_FOOD_VALUE, "decay": Constants.HOTSPOT_FOOD_DECAY, "pos": idx})
+
+	# Process all the cells in the board
 	for idx in board.get_cell_board():
 		var cell = board.get_cell_board()[idx]
 		if (cell.is_player()):
-			hotspots.append({"value": -6, "decay": 2, "pos": idx})
+			hotspots.append({"value": Constants.HOTSPOT_ENEMY_CELL_VALUE, "decay": Constants.HOTSPOT_ENEMY_CELL_DECAY, "pos": idx})
 		else:
 			# This cell is beeing attacked add a strong hotspot here
 			if (cell.is_attacked()):
-				hotspots.append({"value": 20, "decay": -2, "pos": idx})
-			
-			# Add the positions around the ai cell as potential positions to evaluate
-			for offset in OFFSETS:
-				var pos = idx + offset
-				if (board.is_valid(pos)):
-					positions[pos] = 0.0
+				hotspots.append({"value": Constants.HOTSPOT_ATTACKED_CELL_VALUE, "decay": Constants.HOTSPOT_ATTACKED_CELL_DECAY, "pos": idx})
 
 
 func manhattan_dist(p1, p2):
 	return abs(p1.x - p2.x) + abs(p1.y - p2.y)
 	
 
-func calculate_potential_field(positions, hotspots):
-	for position in positions:
-		var value = 0
+func calculate_potential_field_value(position, hotspots):
+	var value = 0
 		
-		for hotspot in hotspots:
-			value += max(0, hotspot["value"] - (manhattan_dist(position, hotspot["pos"]) * hotspot["decay"]))
-		
-		positions[position] = value
+	for hotspot in hotspots:
+		var dist = manhattan_dist(position, hotspot["pos"])
+		value += max(0, abs(hotspot["value"]) - (dist * hotspot["decay"])) * sign(hotspot["value"])
+	
+	return value
 
 
 
@@ -76,4 +114,4 @@ func calculate_next_tick_rate():
 
 
 func cell_added():
-	enemy_field_dirty = true
+	pass
