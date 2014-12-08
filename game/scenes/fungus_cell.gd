@@ -36,6 +36,8 @@ var current_attack_pos = null
 var next_attack_pos = null
 var arm_animation_time = 0.0
 
+var sndCnt = 0
+
 func _ready():
 	set_process(true)
 	current_energy = Constants.INITIAL_ENERGY
@@ -116,7 +118,10 @@ func _process(delta):
 
 func playSpreadSound():
 	if is_player():
-		get_parent().get_parent().get_node("SamplePlayer2D").play("spread"+str(1+floor(randf()*3)))
+		sndCnt += 1
+		if sndCnt>=9:
+			sndCnt = 1
+		get_parent().get_parent().get_node("SamplePlayer2D").play("spread"+str(1+floor(randf()*4)), sndCnt)
 
 func tick():
 	if (attack_count > 0):

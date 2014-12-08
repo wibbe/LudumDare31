@@ -36,26 +36,28 @@ func _ready():
 
 
 func _process(delta):
+	if musicCooldown>0.0:
+		musicCooldown -= delta
+		if musicCooldown<=0.0:
+			get_node("SamplePlayer2D").play("musicloop", 9)
 	if is_playing:
 		time_to_next_tick += delta
 		while (time_to_next_tick > Constants.GAME_SPEED):
 			time_to_next_tick -= Constants.GAME_SPEED
 			cells.tick()
-		if musicCooldown>0.0:
-			musicCooldown -= delta
-			if musicCooldown<=0.0:
-				get_node("SamplePlayer2D").play("musicloop", 5)
-				
 		# Stop the game if one of the players run out of cells
 		if cells.ai_cell_count == 0:
 			is_playing = false
 			get_node("Win").show()
+			get_node("SamplePlayer2D").stop_all()
+			get_node("SamplePlayer2D").play("victory")
+			musicCooldown = 1.72
 		elif cells.player_cell_count == 0:
 			is_playing = false
 			get_node("Lose").show()
-			
+			get_node("SamplePlayer2D").stop_all()
+			get_node("SamplePlayer2D").play("gameover")
 
-	
 func _input(event):
 	if is_playing:
 
