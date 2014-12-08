@@ -15,6 +15,7 @@ var time_to_next_tick = 0.0
 
 var selection = null
 var pressed_pos = null
+var musicCooldown = 0.0
 
 func _ready():
 	set_process_input(true)
@@ -35,8 +36,12 @@ func _process(delta):
 		time_to_next_tick += delta
 		while (time_to_next_tick > Constants.GAME_SPEED):
 			time_to_next_tick -= Constants.GAME_SPEED
-			
 			cells.tick()
+		if musicCooldown>0.0:
+			musicCooldown -= delta
+			if musicCooldown<=0.0:
+				print(get_node("SamplePlayer2D").get_sample_library().get_sample("musicloop"))
+				get_node("SamplePlayer2D").play("musicloop", 5)
 
 	
 func _input(event):
@@ -115,6 +120,8 @@ func _input(event):
 
 
 func start_game():
+	get_node("SamplePlayer2D").play("start", 0)
+	musicCooldown = 0.75
 	is_playing = true
 	init_board()
 	get_node("SplashScreen").hide()
@@ -159,3 +166,10 @@ func get_world_pos(pos):
 	world_pos.y *= tile_map.get_scale().y
 	
 	return world_pos
+
+
+func onStartButtonMouseEnter():
+	get_node("SamplePlayer2D").play("over")
+
+func onStartButtonMouseExit():
+	get_node("SamplePlayer2D").play("out")
