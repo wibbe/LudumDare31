@@ -81,7 +81,7 @@ func _process(delta):
 		scale += sign(target_scale - scale) * delta
 	
 	sprite.set_scale(Vector2(scale, scale))
-	energy_bar.set_scale(Vector2(board.get_energy(pos) / Constants.MAX_CELL_ENERGY, 1))
+	energy_bar.set_scale(Vector2(current_energy / Constants.MAX_ENERGY, 1))
 	
 	if (background):
 		background.update_scale(scale)
@@ -106,8 +106,8 @@ func _process(delta):
 			current_attack_pos = null
 		elif (current_attack_pos == null and next_attack_pos != null):
 			# Extend the arm by only if we are attacking another cell besides our own
-			playSpreadSound()
 			if (next_attack_pos != pos):
+				playSpreadSound()
 				var arm = get_node("Arm")
 				arm.set_rot(get_pos().angle_to_point(board.get_world_pos(next_attack_pos)))
 				
