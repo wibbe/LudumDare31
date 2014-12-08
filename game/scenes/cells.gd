@@ -17,8 +17,8 @@ var food3 = preload("res://scenes/food3.scn")
 
 func _ready():
 	tile_map = get_node("../ValidTiles")
-	
-	
+
+
 func tick():
 	for idx in cell_board:
 		var cell = cell_board[idx]
@@ -61,7 +61,7 @@ func get_cell(pos):
 		return null
 
 
-func add_cell(pos, type):
+func add_cell(pos, type, owner):
 	if (not is_empty(pos)):
 		return false
 	
@@ -71,7 +71,7 @@ func add_cell(pos, type):
 	cell_board[pos] = cell
 	
 	cell.set_pos(get_world_pos(pos))
-	cell.initialize(pos, self)
+	cell.initialize(pos, owner, self)
 		
 	return true
 

@@ -1,12 +1,13 @@
 
 extends Node2D
 
-const START_TILE = 2
 const START_ENERGY = 1000
 const CELL_SCALE = 0.5
 const GAME_SPEED = 0.1
 
+
 var FungusCell = preload("res://scenes/fungus_cell.scn")
+var Constants = preload("res://scenes/constants.gd")
 
 var tile_map = null
 var cells = null
@@ -109,8 +110,11 @@ func init_board():
 		for x in range(0, tile_map.get_cell_size().x):
 			var tile = tile_map.get_cell(x, y)
 			
-			if (tile == START_TILE):
-				cells.add_cell(Vector2(x, y), FungusCell)
+			if (tile == Constants.PLAYER_START_TILE):
+				cells.add_cell(Vector2(x, y), FungusCell, Constants.HUMAN_PLAYER)
+				cells.add_energy(Vector2(x, y), START_ENERGY)
+			elif (tile == Constants.AI_START_TILE):
+				cells.add_cell(Vector2(x, y), FungusCell, Constants.AI_PLAYER)
 				cells.add_energy(Vector2(x, y), START_ENERGY)
 			else:
 				var rnd = randf()
