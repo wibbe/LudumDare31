@@ -9,6 +9,8 @@ var tile_map = null
 var cells = null
 var spread = null
 
+var is_playing = false
+
 var time_to_next_tick = 0.0
 
 var selection = null
@@ -23,86 +25,97 @@ func _ready():
 	spread = get_node("Cells/Spread")
 	
 	tile_map.hide()
-	init_board()
+
 
 func _process(delta):
-	time_to_next_tick += delta
-	while (time_to_next_tick > Constants.GAME_SPEED):
-		time_to_next_tick -= Constants.GAME_SPEED
-		
-		cells.tick()
+	if is_playing:
+		time_to_next_tick += delta
+		while (time_to_next_tick > Constants.GAME_SPEED):
+			time_to_next_tick -= Constants.GAME_SPEED
+			
+			cells.tick()
 
 	
 func _input(event):
-	if (event.type == InputEvent.MOUSE_BUTTON):
-		if (event.pressed and event.button_index == 1):
-			var pos = get_tile_pos(event.pos)
-			var cell = cells.get_cell(pos)
-		
-			if (cell and cell.is_player()):
-				pressed_pos = pos
-			else:
+	if is_playing:
+
+		if (event.type == InputEvent.MOUSE_BUTTON):
+			if (event.pressed and event.button_index == 1):
+				var pos = get_tile_pos(event.pos)
+				var cell = cells.get_cell(pos)
+			
+				if (cell and cell.is_player()):
+					pressed_pos = pos
+				else:
+					pressed_pos = null
+			elif (pressed_pos != null and event.button_index == 1):
+				# Left-dragging will extend the arm towards the cell
+				var pos = get_tile_pos(event.pos)
+				var cell = cells.get_cell(pos)
+			
+				if ((pos.x == pressed_pos.x) or (pos.y == pressed_pos.y)):
+					var selected = cells.get_cell(pressed_pos)
+					
+					if (pressed_pos != pos):
+						pressed_pos.x += sign(pos.x - pressed_pos.x) * 1
+						pressed_pos.y += sign(pos.y - pressed_pos.y) * 1
+					
+					selected.attack(pressed_pos)
+					spread.hide()
+					
 				pressed_pos = null
-		elif (pressed_pos != null and event.button_index == 1):
-			# Left-dragging will extend the arm towards the cell
-			var pos = get_tile_pos(event.pos)
-			var cell = cells.get_cell(pos)
-		
-			if ((pos.x == pressed_pos.x) or (pos.y == pressed_pos.y)):
-				var selected = cells.get_cell(pressed_pos)
 				
-				if (pressed_pos != pos):
-					pressed_pos.x += sign(pos.x - pressed_pos.x) * 1
-					pressed_pos.y += sign(pos.y - pressed_pos.y) * 1
-				
-				selected.attack(pressed_pos)
+			elif (event.pressed and event.button_index == 2):
+				# Right-clicking on a cell will retrackt the arm
+				var pos = get_tile_pos(event.pos)
+				var cell = cells.get_cell(pos)
+			
+				if (cell and cell.is_player()):
+					cell.attack(pos)
+			elif (event.pressed and event.button_index == 3):
+				var pos = get_tile_pos(event.pos)
+				var cell = cells.get_cell(pos)
+			
+				if (cell and not cell.is_player()):
+					get_node("AIPlayer").debug_info_for = pos
+				else:
+					get_node("AIPlayer").debug_info_for = null
+			
+				pressed_pos = null
+		elif (event.type == InputEvent.MOUSE_MOTION):
+			if (pressed_pos != null):
+				spread.hide()
+	
+				var pos = get_tile_pos(event.pos)
+				var cell = cells.get_cell(pos)
+			
+				if (((pos.x == pressed_pos.x) or (pos.y == pressed_pos.y)) and pos != pressed_pos):
+					spread.show();
+					spread.set_pos(get_world_pos(pressed_pos))
+					spread.set_rot(spread.get_pos().angle_to_point(get_world_pos(pos)))
+			else:
 				spread.hide()
 				
-			pressed_pos = null
-			
-		elif (event.pressed and event.button_index == 2):
-			# Right-clicking on a cell will retrackt the arm
-			var pos = get_tile_pos(event.pos)
-			var cell = cells.get_cell(pos)
-		
-			if (cell and cell.is_player()):
-				cell.attack(pos)
+				if (selection):
+					selection.deselect()
+					selection = null
 				
-		elif (event.pressed and event.button_index == 3):
-			var pos = get_tile_pos(event.pos)
-			var cell = cells.get_cell(pos)
-		
-			if (cell and not cell.is_player()):
-				get_node("AIPlayer").debug_info_for = pos
-			else:
-				get_node("AIPlayer").debug_info_for = null
-		
-			pressed_pos = null
-	elif (event.type == InputEvent.MOUSE_MOTION):
-		if (pressed_pos != null):
-			spread.hide()
+				var pos = get_tile_pos(event.pos)
+				var cell = cells.get_cell(pos)
+				
+				if (cell and cell.is_player()):
+					selection = cell
+					selection.select()
+	else:
+		# Not playing input goes here
+		pass
 
-			var pos = get_tile_pos(event.pos)
-			var cell = cells.get_cell(pos)
-		
-			if (((pos.x == pressed_pos.x) or (pos.y == pressed_pos.y)) and pos != pressed_pos):
-				spread.show();
-				spread.set_pos(get_world_pos(pressed_pos))
-				spread.set_rot(spread.get_pos().angle_to_point(get_world_pos(pos)))
-		else:
-			spread.hide()
-			
-			if (selection):
-				selection.deselect()
-				selection = null
-			
-			var pos = get_tile_pos(event.pos)
-			var cell = cells.get_cell(pos)
-			
-			if (cell and cell.is_player()):
-				selection = cell
-				selection.select()
 
+func start_game():
+	is_playing = true
+	init_board()
+	get_node("SplashScreen").hide()
+	
 
 func get_tile_pos(pos):
 	pos -= tile_map.get_pos()

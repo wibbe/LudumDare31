@@ -139,7 +139,7 @@ func tick():
 				current_energy -= target_cell.transfer_energy(Constants.ENERGY_TRANSFER)
 			else:
 				target_cell.drain_energy(Constants.ATTACK_ENERGY)
-				current_energy -= Constants.ATTACK_ENERGY * 0.5
+				current_energy -= Constants.ATTACK_ENERGY * 0.25
 	
 	# The cell is killed if we run out of energy
 	if (current_energy <= 0):
