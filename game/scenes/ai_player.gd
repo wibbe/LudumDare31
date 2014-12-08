@@ -6,10 +6,14 @@ const OFFSETS = [Vector2(-1, 0), Vector2(0, -1), Vector2(1, 0), Vector2(0, 1)]
 
 var board = null
 var time_to_tick = 0.0
-var cell_state = {}
+
+var all_cells = []
+var next_to_process = 0
 
 var positions = {}
 var hotspots = []
+
+var enemies = {}
 
 var debug_info_for = null
 
@@ -28,8 +32,14 @@ func _ready():
 func _process(delta):
 	time_to_tick -= delta
 	if (time_to_tick < 0):
-		tick()
+		collect_information()
 		time_to_tick = calculate_next_tick_rate()
+	
+	if (all_cells.size() > 0):
+		if (next_to_process >= all_cells.size()):
+			next_to_process = 0
+		process_cell(all_cells[next_to_process])
+		next_to_process += 1
 
 
 func _draw():
@@ -48,52 +58,58 @@ func _draw():
 			draw_rect(Rect2(pos.x - 15, pos.y + 11, 4, 4), Color(0, 0, 1))
 			
 	if (debug_info_for != null):
-		var cell = board.get_cell_board()[debug_info_for]
+		var cell = board.get_cell(debug_info_for)
 		
-		for offset in OFFSETS:
-			var pos = debug_info_for + offset
-			var world_pos = board.get_world_pos(pos)
-			var string = str(int(calculate_potential_field_value(pos, hotspots)))
-			var size = ubuntu_mono.get_string_size(string)
-			draw_string(ubuntu_mono, Vector2(world_pos.x - (size.x * 0.5), world_pos.y), string)
-		
-	#for idx in positions:
-	#	var pos = board.get_world_pos(idx)
-	#	var string = str(int(positions[idx]))
-	#	var size = ubuntu_mono.get_string_size(string)
-	#	draw_string(ubuntu_mono, Vector2(pos.x - (size.x * 0.5), pos.y), string)
-
-	
-
-
-func tick():
-	hotspots = []
-	positions = {}
-	
-	collect_information(hotspots)
-	#calculate_potential_field(positions, hotspots)
-	
-	for idx in board.get_cell_board():
-		var cell = board.get_cell_board()[idx]
-		if (not cell.is_player()):
-			var selected_pos = null
-			var selected_score = 0
-			
+		if (cell):
 			for offset in OFFSETS:
-				var pos = idx + offset
-				var score = calculate_potential_field_value(pos, hotspots)
-				if (score > selected_score):
-					selected_score = score
-					selected_pos = pos
-					
-			if (selected_pos != null and selected_score != 0):
-				if (cell.current_energy > Constants.COLONIZE_ENERGY_COST * 3):
-				cell.attack(selected_pos)
+				var pos = debug_info_for + offset
+				var world_pos = board.get_world_pos(pos)
+				var string = str(int(calculate_potential_field_value(pos, hotspots)))
+				var size = ubuntu_mono.get_string_size(string)
+				draw_string(ubuntu_mono, Vector2(world_pos.x - (size.x * 0.5), world_pos.y), string)
+
+
 	
-	update()
 
 
-func collect_information(hotspots):
+func process_cell(cell):
+	var selected_pos = null
+	var selected_score = 0
+	
+	for offset in OFFSETS:
+		var pos = cell.pos + offset
+		if (board.is_valid(pos)):
+			var score = calculate_potential_field_value(pos)
+			if (score > selected_score):
+				selected_score = score
+				selected_pos = pos
+			
+	if (selected_pos != null and selected_score != 0):
+		if (cell.current_energy > Constants.COLONIZE_ENERGY_COST * 3):
+		cell.attack(selected_pos)
+
+
+func manhattan_dist(p1, p2):
+	return abs(p1.x - p2.x) + abs(p1.y - p2.y)
+	
+
+func calculate_potential_field_value(position):
+	var value = 0
+		
+	for hotspot in hotspots:
+		var dist = manhattan_dist(position, hotspot["pos"])
+		value += max(0, abs(hotspot["value"]) - (dist * hotspot["decay"])) * sign(hotspot["value"])
+	
+	var cell = board.get_cell(position)
+	if (cell and not cell.is_player() and cell.current_energy > 80):
+		value += Constants.OWN_CELL_PENALTY
+	
+	return value
+
+
+func collect_information():
+	hotspots.clear()
+	
 	# Process all the food sources in the board
 	for idx in board.get_energy_board():
 		var amount = board.get_energy_board()[idx]
@@ -103,7 +119,7 @@ func collect_information(hotspots):
 
 	# Process all the cells in the board
 	for idx in board.get_cell_board():
-		var cell = board.get_cell_board()[idx]
+		var cell = board.get_cell(idx)
 		if (cell.is_player()):
 			hotspots.append({"value": Constants.HOTSPOT_ENEMY_CELL_VALUE, "decay": Constants.HOTSPOT_ENEMY_CELL_DECAY, "pos": idx})
 		else:
@@ -112,24 +128,15 @@ func collect_information(hotspots):
 				hotspots.append({"value": Constants.HOTSPOT_ATTACKED_CELL_VALUE, "decay": Constants.HOTSPOT_ATTACKED_CELL_DECAY, "pos": idx})
 
 
-func manhattan_dist(p1, p2):
-	return abs(p1.x - p2.x) + abs(p1.y - p2.y)
-	
-
-func calculate_potential_field_value(position, hotspots):
-	var value = 0
-		
-	for hotspot in hotspots:
-		var dist = manhattan_dist(position, hotspot["pos"])
-		value += max(0, abs(hotspot["value"]) - (dist * hotspot["decay"])) * sign(hotspot["value"])
-	
-	return value
-
 
 
 func calculate_next_tick_rate():
 	return Constants.AI_TICK_RATE * randf() * Constants.AT_TICK_RATE_VARIATION
 
 
-func cell_added():
-	pass
+func cell_added(cell):
+	all_cells.append(cell)
+
+	
+func cell_removed(cell):
+	all_cells.erase(cell)

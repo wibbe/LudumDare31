@@ -18,6 +18,8 @@ var food1 = preload("res://scenes/food1.scn")
 var food2 = preload("res://scenes/food2.scn")
 var food3 = preload("res://scenes/food3.scn")
 
+var Constants = preload("res://scenes/constants.gd")
+
 func _ready():
 	tile_map = get_node("../ValidTiles")
 	minIdx = Vector2(100, 100)
@@ -85,12 +87,16 @@ func add_cell(pos, type, owner):
 	cell.set_pos(get_world_pos(pos))
 	cell.initialize(pos, owner, self)
 	
-	get_parent().get_node("AIPlayer").cell_added()
+	if (cell.owner == Constants.AI_PLAYER):
+		get_parent().get_node("AIPlayer").cell_added(cell)
 	return true
 
 
 func clear_cell(cell):
 	cells_to_clear.push_back(cell)
+	
+	if (cell.owner == Constants.AI_PLAYER):
+		get_parent().get_node("AIPlayer").cell_removed(cell)
 
 
 func add_energy(pos, energy):
