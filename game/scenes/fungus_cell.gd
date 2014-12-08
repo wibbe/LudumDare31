@@ -91,7 +91,7 @@ func _process(delta):
 		
 	# Control the attack animation
 	if (not arm_animation.is_playing() and (current_attack_pos != null or next_attack_pos != null)):
-	
+		get_parent().get_parent().get_node("SamplePlayer2D").play("spread1")
 		if (current_attack_pos != null and next_attack_pos != null):
 			# Retract the arm
 			arm_animation.play("Attack", -1, -1, true)
