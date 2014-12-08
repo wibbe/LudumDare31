@@ -81,7 +81,7 @@ func _process(delta):
 		scale += sign(target_scale - scale) * delta
 	
 	sprite.set_scale(Vector2(scale, scale))
-	energy_bar.set_scale(Vector2(current_energy / Constants.MAX_ENERGY, 1))
+	energy_bar.set_scale(Vector2(board.get_energy(pos) / Constants.MAX_CELL_ENERGY, 1))
 	
 	if (background):
 		background.update_scale(scale)
