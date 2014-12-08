@@ -18,6 +18,10 @@ var pressed_pos = null
 var musicCooldown = 0.0
 
 func _ready():
+	var ml = get_node("SamplePlayer2D").get_sample_library().get_sample("musicloop")
+	ml.set_loop_format(Sample.LOOP_FORWARD)
+	ml.set_loop_end(ml.get_length())
+
 	set_process_input(true)
 	set_process(true)
 	
@@ -40,7 +44,6 @@ func _process(delta):
 		if musicCooldown>0.0:
 			musicCooldown -= delta
 			if musicCooldown<=0.0:
-				print(get_node("SamplePlayer2D").get_sample_library().get_sample("musicloop"))
 				get_node("SamplePlayer2D").play("musicloop", 5)
 				
 		# Stop the game if one of the players run out of cells
