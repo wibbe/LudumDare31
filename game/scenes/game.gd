@@ -42,11 +42,14 @@ func _process(delta):
 			if musicCooldown<=0.0:
 				print(get_node("SamplePlayer2D").get_sample_library().get_sample("musicloop"))
 				get_node("SamplePlayer2D").play("musicloop", 5)
+				
 		# Stop the game if one of the players run out of cells
 		if cells.ai_cell_count == 0:
 			is_playing = false
+			get_node("Win").show()
 		elif cells.player_cell_count == 0:
 			is_playing = false
+			get_node("Lose").show()
 			
 
 	
