@@ -6,6 +6,7 @@ const OFFSETS = [Vector2(-1, 0), Vector2(0, -1), Vector2(1, 0), Vector2(0, 1)]
 
 var board = null
 var time_to_tick = 0.0
+var time_to_process = 0.0
 
 var all_cells = []
 var next_to_process = 0
@@ -26,48 +27,53 @@ var ubuntu_mono = preload("res://fonts/ubuntu_mono.fnt")
 func _ready():
 	set_process(true)
 	board = get_parent().get_node("Cells")
-	
-	time_to_tick = calculate_next_tick_rate()
+
 
 func _process(delta):
 	time_to_tick -= delta
-	if (time_to_tick < 0):
-		collect_information()
-		update()
-		time_to_tick = calculate_next_tick_rate()
+	time_to_process -= delta
 	
-	if (all_cells.size() > 0):
-		if (next_to_process >= all_cells.size()):
-			next_to_process = 0
-		process_cell(all_cells[next_to_process])
-		next_to_process += 1
+	if time_to_tick < 0:
+		collect_information()
+		#update()
+		time_to_tick = Constants.AI_TICK_RATE
+		
+	
+	if time_to_process < 0:
+		time_to_process = Constants.AI_PROCESS_RATE
+		
+		if all_cells.size() > 0:
+			if (next_to_process >= all_cells.size()):
+				next_to_process = 0
+			process_cell(all_cells[next_to_process])
+			next_to_process += 1
 
 
-func _draw():
-	for hotspot in hotspots:
-		var pos = board.get_world_pos(hotspot["pos"])
-		var color = Color(1, 0, 0)
-		if (hotspot["value"] > 0):
-			color = Color(0, 1, 0)
-		
-		draw_rect(Rect2(pos.x - 15, pos.y - 15, 4, 4), color)
-		
-	for idx in board.get_cell_board():
-		var cell = board.get_cell_board()[idx]
-		if (not cell.is_player() and cell.is_attacked()):
-			var pos = cell.get_pos()
-			draw_rect(Rect2(pos.x - 15, pos.y + 11, 4, 4), Color(0, 0, 1))
-			
-	if (debug_info_for != null):
-		var cell = board.get_cell(debug_info_for)
-		
-		if (cell):
-			for offset in OFFSETS:
-				var pos = debug_info_for + offset
-				var world_pos = board.get_world_pos(pos)
-				var string = str(int(calculate_potential_field_value(cell, pos)))
-				var size = ubuntu_mono.get_string_size(string)
-				draw_string(ubuntu_mono, Vector2(world_pos.x - (size.x * 0.5), world_pos.y), string)
+#func _draw():
+#	for hotspot in hotspots:
+#		var pos = board.get_world_pos(hotspot["pos"])
+#		var color = Color(1, 0, 0)
+#		if (hotspot["value"] > 0):
+#			color = Color(0, 1, 0)
+#		
+#		draw_rect(Rect2(pos.x - 15, pos.y - 15, 4, 4), color)
+#		
+#	for idx in board.get_cell_board():
+#		var cell = board.get_cell_board()[idx]
+#		if (not cell.is_player() and cell.is_attacked()):
+#			var pos = cell.get_pos()
+#			draw_rect(Rect2(pos.x - 15, pos.y + 11, 4, 4), Color(0, 0, 1))
+#			
+#	if (debug_info_for != null):
+#		var cell = board.get_cell(debug_info_for)
+#		
+#		if (cell):
+#			for offset in OFFSETS:
+#				var pos = debug_info_for + offset
+#				var world_pos = board.get_world_pos(pos)
+#				var string = str(int(calculate_potential_field_value(cell, pos)))
+#				var size = ubuntu_mono.get_string_size(string)
+#				draw_string(ubuntu_mono, Vector2(world_pos.x - (size.x * 0.5), world_pos.y), string)
 
 
 
@@ -138,11 +144,6 @@ func collect_information():
 			if (cell.is_attacked()):
 				hotspots.append({"value": Constants.HOTSPOT_ATTACKED_CELL_VALUE, "decay": Constants.HOTSPOT_ATTACKED_CELL_DECAY, "pos": idx})
 
-
-
-
-func calculate_next_tick_rate():
-	return Constants.AI_TICK_RATE * randf() * Constants.AT_TICK_RATE_VARIATION
 
 
 func cell_added(cell):
