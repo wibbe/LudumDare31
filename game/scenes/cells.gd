@@ -12,6 +12,9 @@ var cells_to_clear = []
 var minIdx
 var maxIdx
 
+var player_cell_count = 0
+var ai_cell_count = 0
+
 var tile_map = null
 
 var food1 = preload("res://scenes/food1.scn")
@@ -89,6 +92,10 @@ func add_cell(pos, type, owner):
 	
 	if (cell.owner == Constants.AI_PLAYER):
 		get_parent().get_node("AIPlayer").cell_added(cell)
+		ai_cell_count += 1
+	else:
+		player_cell_count += 1
+		
 	return true
 
 
@@ -97,6 +104,9 @@ func clear_cell(cell):
 	
 	if (cell.owner == Constants.AI_PLAYER):
 		get_parent().get_node("AIPlayer").cell_removed(cell)
+		ai_cell_count -= 1
+	else:
+		player_cell_count -= 1
 
 
 func add_energy(pos, energy):
