@@ -112,7 +112,8 @@ func calculate_potential_field_value(source, position):
 					value += Constants.OWN_CELL_SCORE
 				elif (cell.current_energy > 60):
 					value -= Constants.OWN_CELL_SCORE
-			
+		elif source.current_energy > 80:
+			value += Constants.ATTACK_ENEMY_CELL_SCORE
 	
 	return value
 
