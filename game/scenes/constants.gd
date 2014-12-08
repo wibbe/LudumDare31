@@ -8,6 +8,7 @@ const PLAYER_START_TILE = 2
 const AI_START_TILE = 3
 
 const START_ENERGY = 1000
+const MAX_CELL_ENERGY = 2000
 const CELL_SCALE = 0.5
 const GAME_SPEED = 0.1
 

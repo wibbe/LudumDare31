@@ -49,7 +49,13 @@ func draw_energy(pos):
 		return 1
 	else:
 		return 0
-	
+		
+
+
+func get_energy(pos):
+	if energy_board.has(pos):
+		return energy_board[pos]
+	return 0.0
 
 
 func is_empty(pos):
