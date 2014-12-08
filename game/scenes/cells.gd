@@ -61,6 +61,10 @@ func get_cell(pos):
 		return null
 
 
+func get_cells():
+	return cell_board
+
+
 func add_cell(pos, type, owner):
 	if (not is_empty(pos)):
 		return false
@@ -72,7 +76,8 @@ func add_cell(pos, type, owner):
 	
 	cell.set_pos(get_world_pos(pos))
 	cell.initialize(pos, owner, self)
-		
+	
+	get_parent().get_node("AIPlayer").cell_added()
 	return true
 
 
